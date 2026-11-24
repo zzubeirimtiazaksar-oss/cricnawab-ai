@@ -3,46 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricNawab AI • Live Cricket & Analytics</title>
+  <title>CricNawab AI • Live Cricket & Voice</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: #f2f4f7; color: #111827; padding-bottom: 78px; }
+    body { background: #f1f5f9; color: #0f172a; padding-bottom: 82px; }
     .topbar {
-      background: #111827; color: #fff; padding: 12px 16px;
+      background: #0f172a; color: #fff; padding: 12px 16px;
       display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 20;
+      position: sticky; top: 0; z-index: 30;
     }
     .pro-btn {
       background: #14532d; color: #86efac; border: 1px solid #22c55e;
       padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
-    .brand { font-size: 20px; font-weight: 800; color: #34d399; letter-spacing: 0.5px; }
+    .brand { font-size: 20px; font-weight: 900; color: #34d399; letter-spacing: 0.5px; }
     .voice-pill {
-      background: #1f2937; color: #f9fafb; border: 1px solid #374151;
-      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+      background: #1e293b; color: #f8fafc; border: 1px solid #334155;
+      padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
     .chips {
-      display: flex; gap: 8px; overflow-x: auto; padding: 10px 14px; background: #fff;
-      border-bottom: 1px solid #e5e7eb;
+      display: flex; gap: 8px; overflow-x: auto; padding: 10px 14px;
+      background: #fff; border-bottom: 1px solid #e2e8f0;
     }
     .chip {
-      padding: 6px 14px; border-radius: 999px; border: 1px solid #d1d5db;
+      padding: 6px 14px; border-radius: 999px; border: 1px solid #cbd5e1;
       background: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
     }
-    .chip.active { border-color: #111827; background: #f9fafb; }
+    .chip.active { border-color: #0f172a; background: #f8fafc; }
     .container { max-width: 480px; margin: 0 auto; padding: 12px; }
     .hero-card {
       background: #fff; border: 1.5px solid #fecaca; border-radius: 16px;
-      padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer;
+      padding: 14px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05); cursor: pointer;
     }
     .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .series-title { font-size: 13px; font-weight: 700; color: #1f2937; }
+    .series-title { font-size: 13px; font-weight: 800; color: #1e293b; }
     .live-badge {
       background: #ef4444; color: #fff; font-size: 11px; font-weight: 800;
       padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
     }
     .live-badge.upcoming { background: #2563eb; }
-    .sub-source { font-size: 11px; color: #6b7280; margin-top: 3px; }
+    .sub-source { font-size: 11px; color: #64748b; margin-top: 3px; }
     .score-row {
       display: flex; align-items: center; justify-content: space-between;
       margin: 16px 0 12px; text-align: center;
@@ -55,36 +55,42 @@
     }
     .team-circle.b { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
     .team-name { font-size: 13px; font-weight: 700; }
-    .score-mid { font-size: 15px; font-weight: 800; color: #111827; }
+    .score-mid { font-size: 15px; font-weight: 800; color: #0f172a; }
     .score-mid span { color: #ef4444; margin: 0 4px; font-size: 12px; }
-    .pill-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; }
+    .pill-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; align-items: center; }
     .mini-pill {
       flex: 1; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0;
-      border-radius: 999px; padding: 6px 8px; font-size: 12px; font-weight: 600;
+      border-radius: 999px; padding: 6px 8px; font-size: 12px; font-weight: 700;
     }
     .venue-line {
-      text-align: center; font-size: 12px; font-weight: 600; color: #374151;
-      margin-top: 10px; padding-top: 8px; border-top: 1px solid #f3f4f6;
+      text-align: center; font-size: 12px; font-weight: 600; color: #334155;
+      margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9;
     }
-    .tap-hint { text-align: center; font-size: 11px; color: #059669; font-weight: 700; margin-top: 6px; }
+    .open-cta {
+      margin-top: 10px; width: 100%; background: #0f172a; color: #34d399;
+      border: none; border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 800; cursor: pointer;
+    }
     .dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; }
     .dot { width: 8px; height: 8px; border-radius: 999px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
-    .dot.active { width: 22px; background: #1e293b; }
+    .dot.active { width: 22px; background: #0f172a; }
     .card {
       background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 12px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #e2e8f0;
     }
-    .card-title { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .card-title {
+      font-size: 14px; font-weight: 800; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
     .prob-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
-    .prob-bar { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+    .prob-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
     .prob-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
-    .strip-meta { font-size: 11px; color: #4b5563; margin-top: 8px; line-height: 1.4; }
+    .strip-meta { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.45; }
     .ask-row { display: flex; gap: 8px; margin-top: 8px; }
     .ask-input {
-      flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 13px;
+      flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 13px;
     }
     .ask-btn {
-      background: #111827; color: #fff; border: none; border-radius: 10px;
+      background: #0f172a; color: #fff; border: none; border-radius: 10px;
       padding: 0 16px; font-weight: 700; cursor: pointer;
     }
     .ask-reply {
@@ -93,32 +99,52 @@
     }
     .intel-row {
       display: flex; justify-content: space-between; padding: 9px 0;
-      border-bottom: 1px solid #f3f4f6; font-size: 13px;
+      border-bottom: 1px solid #f1f5f9; font-size: 13px;
     }
     .intel-row:last-child { border-bottom: none; }
-    .intel-label { color: #6b7280; }
-    .intel-val { font-weight: 700; color: #111827; text-align: right; }
+    .intel-label { color: #64748b; }
+    .intel-val { font-weight: 700; color: #0f172a; text-align: right; }
     .comm-item {
-      padding: 10px; border-radius: 10px; background: #f9fafb; border: 1px solid #e5e7eb;
+      padding: 10px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0;
       margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
     .over-tag {
-      background: #111827; color: #fff; font-size: 11px; font-weight: 800;
+      background: #0f172a; color: #fff; font-size: 11px; font-weight: 800;
       padding: 3px 7px; border-radius: 6px;
     }
     .bol-btn {
       background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7;
-      padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;
+      cursor: pointer; white-space: nowrap;
     }
     .player-card {
-      padding: 10px; border-radius: 10px; border: 1px solid #e5e7eb; margin-bottom: 8px; background: #fafafa;
+      padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;
+      margin-bottom: 8px; background: #f8fafc;
+    }
+    /* Match Detail Modal when tapping a match card */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
+      z-index: 50; padding: 14px; overflow-y: auto;
+    }
+    .modal-backdrop.open { display: flex; align-items: flex-start; justify-content: center; }
+    .modal-box {
+      width: 100%; max-width: 480px; background: #fff; border-radius: 18px;
+      padding: 16px; margin-top: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+    .close-btn {
+      background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
     }
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #111827;
-      display: flex; justify-content: space-around; padding: 10px 0; z-index: 30;
+      position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a;
+      display: flex; justify-content: space-around; padding: 10px 0; z-index: 35;
     }
     .nav-btn {
-      background: none; border: none; color: #9ca3af; font-size: 11px; font-weight: 700;
+      background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700;
       display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
     }
     .nav-btn.active { color: #34d399; }
@@ -130,7 +156,7 @@
   <div class="topbar">
     <button class="pro-btn" onclick="switchTab('profile')">Unlock AI Pro</button>
     <div class="brand">CN</div>
-    <button class="voice-pill" onclick="speakLatest()">🔊 Latest</button>
+    <button class="voice-pill" onclick="speakLatest()">🔊 Bol Score</button>
   </div>
 
   <div class="chips" id="filterChips">
@@ -159,11 +185,9 @@
       <div class="card" id="homeProbCard"></div>
     </div>
 
-    <!-- MATCH TAB (Full Live Match Scorecard + Pitch Intel + Voice) -->
+    <!-- MATCH TAB -->
     <div id="tab-match" class="tab-section">
-      <div id="matchDetailHeader"></div>
-      <div class="card" id="matchIntelCard"></div>
-      <div class="card" id="matchLiveFeedCard"></div>
+      <div id="matchTabContent"></div>
     </div>
 
     <!-- EXPERTS TAB -->
@@ -175,7 +199,7 @@
     <div id="tab-feed" class="tab-section">
       <div class="card">
         <div class="card-title">
-          <span>🎙️ Live Ball-by-Ball & Voice Feed</span>
+          <span>🎙️ Live Voice & Commentary Feed</span>
           <button class="bol-btn" onclick="speakLatest()">🔊 Bol Latest</button>
         </div>
         <div id="feedContainer"></div>
@@ -186,13 +210,18 @@
     <div id="tab-profile" class="tab-section">
       <div class="card">
         <div class="card-title"><span>👑 CricNawab AI Pro Pass</span></div>
-        <p style="font-size:13px;color:#4b5563;margin-bottom:12px;">
+        <p style="font-size:13px;color:#475569;margin-bottom:12px;">
           Unlock full AI win projections, session ranges, and H2H/GL expert picks.
         </p>
         <div class="intel-row"><span class="intel-label">Match Day Pass</span><span class="intel-val">₹99</span></div>
         <div class="intel-row"><span class="intel-label">Monthly Pro Pass</span><span class="intel-val">₹249</span></div>
       </div>
     </div>
+  </div>
+
+  <!-- TAP-TO-OPEN MATCH DETAIL MODAL -->
+  <div id="matchModal" class="modal-backdrop" onclick="if(event.target === this) closeMatchModal()">
+    <div class="modal-box" id="matchModalBody"></div>
   </div>
 
   <div class="bottom-nav">
@@ -217,7 +246,7 @@
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'en-IN';
-      utter.rate = 1.0;
+      utter.rate = 0.98;
       window.speechSynthesis.speak(utter);
     }
 
@@ -228,22 +257,28 @@
     function speakLatest() {
       const m = getActiveMatch();
       if (!m) return;
-      const latest = m.commentary?.[0]?.text || `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs.`;
-      speakText(`${m.teamA} versus ${m.teamB}. ${latest}`);
+      const latest = m.commentary?.[0]?.text || '';
+      const spoken = `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB}. ${latest}`;
+      speakText(spoken);
+    }
+
+    function openMatchModal() {
+      renderAll();
+      document.getElementById('matchModal').classList.add('open');
+    }
+
+    function closeMatchModal() {
+      document.getElementById('matchModal').classList.remove('open');
     }
 
     function switchTab(tabName) {
+      closeMatchModal();
       document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('tab-' + tabName);
       const nav = document.getElementById('nav-' + tabName);
       if (target) target.classList.add('active');
       if (nav) nav.classList.add('active');
-    }
-
-    function openMatchDetail() {
-      switchTab('match');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function setFilter(type, btn) {
@@ -272,10 +307,60 @@
       renderAll();
     }
 
-    function renderHeroCard(m, clickable) {
-      const isUp = m.status === 'UPCOMING';
+    function buildMatchDetailHtml(m, showCloseBtn) {
+      const commHtml = (m.commentary || []).map(c => `
+        <div class="comm-item">
+          <div><span class="over-tag">${c.over}</span> <span style="font-size:13px;margin-left:6px;">${c.text}</span></div>
+          <button class="bol-btn" onclick="speakText('${String(c.text).replace(/'/g, '')}')">🔊 Bol</button>
+        </div>
+      `).join('');
+
       return `
-        <div class="hero-card" ${clickable ? 'onclick="openMatchDetail()"' : ''}>
+        <div class="modal-head">
+          <div>
+            <div style="font-size:14px;font-weight:800;">${m.teamA} vs ${m.teamB} • ${m.status}</div>
+            <div style="font-size:11px;color:#64748b;">${m.series} • ${m.timeLabel}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="bol-btn" onclick="speakLatest()">🔊 Bol</button>
+            ${showCloseBtn ? '<button class="close-btn" onclick="closeMatchModal()">✕ Close</button>' : ''}
+          </div>
+        </div>
+
+        <div class="score-row" style="margin:10px 0 14px;">
+          <div class="team-box">
+            <div class="team-circle">${m.teamA}</div>
+            <div class="team-name">${m.teamA}</div>
+          </div>
+          <div class="score-mid">
+            ${m.runsA}/${m.wicketsA}(${m.oversA}) <span>VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})
+          </div>
+          <div class="team-box">
+            <div class="team-circle b">${m.teamB}</div>
+            <div class="team-name">${m.teamB}</div>
+          </div>
+        </div>
+
+        <div class="intel-row"><span class="intel-label">Win Probability</span><span class="intel-val">${m.teamA} ${m.ai.probA}% • ${m.teamB} ${m.ai.probB}%</span></div>
+        <div class="intel-row"><span class="intel-label">Projected Score</span><span class="intel-val">${m.ai.projRange}</span></div>
+        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.ai.sessionRange}</span></div>
+        <div class="intel-row"><span class="intel-label">Momentum</span><span class="intel-val">${m.ai.momentum}</span></div>
+        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue}</span></div>
+
+        <div style="margin-top:12px;">
+          <div style="font-size:13px;font-weight:800;margin-bottom:8px;">🎙️ Live Updates (Tap 🔊 Bol to Hear)</div>
+          ${commHtml}
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      const m = getActiveMatch();
+      if (!m) return;
+      const isUp = m.status === 'UPCOMING';
+
+      document.getElementById('heroContainer').innerHTML = `
+        <div class="hero-card" onclick="openMatchModal()">
           <div class="hero-top">
             <div class="series-title">${m.series} • ${m.teamA} vs ${m.teamB}</div>
             <div class="live-badge ${isUp ? 'upcoming' : ''}">${m.status}</div>
@@ -300,40 +385,26 @@
             <button class="bol-btn" onclick="event.stopPropagation(); speakLatest()">🔊 Bol</button>
           </div>
           <div class="venue-line">${m.venue} • ${m.ai.momentum}</div>
-          ${clickable ? '<div class="tap-hint">Tap card to open full Live Match View →</div>' : ''}
+          <button class="open-cta" onclick="event.stopPropagation(); openMatchModal()">🏏 Open Full Live Match & Voice</button>
         </div>
       `;
-    }
-
-    function renderAll() {
-      const m = getActiveMatch();
-      if (!m) return;
-
-      document.getElementById('heroContainer').innerHTML = renderHeroCard(m, true);
 
       document.getElementById('matchDots').innerHTML = filteredMatches
         .map((_, i) => `<div class="dot ${i === activeIndex ? 'active' : ''}" onclick="selectMatch(${i})"></div>`)
         .join('');
 
       document.getElementById('homeProbCard').innerHTML = `
-        <div class="card-title"><span>✦ AI Win Probability</span><span style="font-size:11px;color:#6b7280;">Live Model</span></div>
+        <div class="card-title"><span>✦ AI Win Probability</span><span style="font-size:11px;color:#64748b;">Live Model</span></div>
         <div class="prob-labels"><span>${m.teamA} ${m.ai.probA}%</span><span>${m.teamB} ${m.ai.probB}%</span></div>
         <div class="prob-bar"><div class="prob-fill" style="width:${m.ai.probA}%"></div></div>
         <div class="strip-meta">${m.ai.projRange} • Session: ${m.ai.sessionRange}</div>
       `;
 
-      // MATCH TAB: Live Score Header + Intel + Live Commentary
-      document.getElementById('matchDetailHeader').innerHTML = `<div style="margin-bottom:12px;">${renderHeroCard(m, false)}</div>`;
-
-      document.getElementById('matchIntelCard').innerHTML = `
-        <div class="card-title"><span>Match Scorecard & Pitch Intel</span><button class="bol-btn" onclick="speakLatest()">🔊 Bol</button></div>
-        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue}</span></div>
-        <div class="intel-row"><span class="intel-label">Pitch Type</span><span class="intel-val">${m.pitchType}</span></div>
-        <div class="intel-row"><span class="intel-label">Avg 1st Innings</span><span class="intel-val">${m.avgScore}</span></div>
-        <div class="intel-row"><span class="intel-label">Projected Score</span><span class="intel-val">${m.ai.projRange}</span></div>
-        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.ai.sessionRange}</span></div>
-        <div class="intel-row"><span class="intel-label">Momentum</span><span class="intel-val">${m.ai.momentum}</span></div>
+      document.getElementById('matchTabContent').innerHTML = `
+        <div class="card">${buildMatchDetailHtml(m, false)}</div>
       `;
+
+      document.getElementById('matchModalBody').innerHTML = buildMatchDetailHtml(m, true);
 
       const commHtml = (m.commentary || []).map(c => `
         <div class="comm-item">
@@ -342,17 +413,12 @@
         </div>
       `).join('');
 
-      document.getElementById('matchLiveFeedCard').innerHTML = `
-        <div class="card-title"><span>Live Updates & Commentary</span></div>
-        ${commHtml}
-      `;
-
       document.getElementById('feedContainer').innerHTML = commHtml;
 
       document.getElementById('expertsContainer').innerHTML = `
         <div class="card-title"><span>💡 H2H & GL Picks (${m.teamA} vs ${m.teamB})</span></div>
-        ${(m.h2hPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#4b5563;margin-top:4px;">${p.reason}</div></div>`).join('')}
-        ${(m.glPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#4b5563;margin-top:4px;">${p.reason}</div></div>`).join('')}
+        ${(m.h2hPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
+        ${(m.glPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
       `;
     }
 
