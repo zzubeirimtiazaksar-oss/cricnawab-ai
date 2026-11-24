@@ -3,858 +3,460 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricNawab-AI — Cricket Predictions</title>
+  <title>CricNawab AI • Live Cricket & Voice</title>
   <style>
-    :root {
-      --bg-top: #07090e;
-      --bg-body: #eef1f6;
-      --card: #ffffff;
-      --ink: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --accent-green: #16a34a;
-      --accent-neon: #4ade80;
-      --red: #ef4444;
-      --nav-bg: #080b11;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; padding-bottom: 82px; }
+    .topbar {
+      background: #0f172a; color: #fff; padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 30;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-
-    body {
-      background: var(--bg-body);
-      color: var(--ink);
-      max-width: 460px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding-bottom: 82px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.22);
+    .pro-btn {
+      background: #14532d; color: #86efac; border: 1px solid #22c55e;
+      padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
-
-    .top-header {
-      background: var(--bg-top);
-      color: #fff;
-      padding: 11px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 40;
+    .brand { font-size: 20px; font-weight: 900; color: #34d399; letter-spacing: 0.5px; }
+    .voice-pill {
+      background: #1e293b; color: #f8fafc; border: 1px solid #334155;
+      padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
     }
-    .unlock-pill {
-      background: #14532d;
-      border: 1px solid #22c55e;
-      color: #86efac;
-      font-weight: 800;
-      font-size: 11.5px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      cursor: pointer;
+    .chips {
+      display: flex; gap: 8px; overflow-x: auto; padding: 10px 14px;
+      background: #fff; border-bottom: 1px solid #e2e8f0;
     }
-    .unlock-pill.pro-on {
-      background: #eab308;
-      border-color: #fde047;
-      color: #111827;
+    .chip {
+      padding: 6px 14px; border-radius: 999px; border: 1px solid #cbd5e1;
+      background: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
     }
-    .cn-logo {
-      font-weight: 900;
-      font-size: 20px;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 2px;
+    .chip.active { border-color: #0f172a; background: #f8fafc; }
+    .container { max-width: 480px; margin: 0 auto; padding: 12px; }
+    .hero-card {
+      background: #fff; border: 1.5px solid #fecaca; border-radius: 16px;
+      padding: 14px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05); cursor: pointer;
     }
-    .cn-logo .c-part { color: var(--accent-neon); }
-    .cn-logo .n-part { color: #ffffff; }
-    .mail-btn {
-      position: relative;
-      background: transparent;
-      border: none;
-      color: #e2e8f0;
-      font-size: 19px;
-      cursor: pointer;
-      padding: 4px;
+    .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .series-title { font-size: 13px; font-weight: 800; color: #1e293b; }
+    .live-badge {
+      background: #ef4444; color: #fff; font-size: 11px; font-weight: 800;
+      padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
     }
-    .mail-dot {
-      position: absolute;
-      top: 3px;
-      right: 2px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
+    .live-badge.upcoming { background: #2563eb; }
+    .sub-source { font-size: 11px; color: #64748b; margin-top: 3px; }
+    .score-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 16px 0 12px; text-align: center;
     }
-
-    .filter-strip {
-      background: #f8fafc;
-      border-bottom: 1px solid var(--line);
-      padding: 10px 12px;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .filter-strip::-webkit-scrollbar { display: none; }
-    .f-chip {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      color: #1e293b;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 999px;
-      white-space: nowrap;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .f-chip.active {
-      border-color: #0f172a;
-      background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .live-red-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--red);
-      display: inline-block;
-    }
-
-    .view-section { display: none; padding: 12px 12px 6px; }
-    .view-section.active { display: block; }
-
-    .hero-match-card {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1.5px solid #fca5a5;
-      padding: 14px;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
-    }
-    .hm-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #334155;
-    }
-    .live-badge-box {
-      background: #ef4444;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.4px;
-    }
-    .live-badge-box.up { background: #2563eb; }
-    .hm-time { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
-
-    .hm-teams-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 14px 0 10px;
-      gap: 8px;
-    }
-    .team-col { text-align: center; min-width: 72px; }
-    .flag-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      margin: 0 auto 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 13px;
-      border: 2px solid #e2e8f0;
-      background: #f1f5f9;
-      color: #0f172a;
-    }
-    .flag-circle.a { background: #dcfce7; border-color: #16a34a; color: #14532d; }
-    .flag-circle.b { background: #dbeafe; border-color: #2563eb; color: #1e3a8a; }
-    .t-code { font-size: 13px; font-weight: 800; color: #0f172a; }
-
-    .score-center { text-align: center; flex: 1; }
-    .score-main { font-size: 14px; font-weight: 900; color: #0f172a; }
-    .score-main .vs-txt { color: var(--red); margin: 0 4px; font-size: 12px; }
-
-    .picks-strip {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #f1f5f9;
-    }
-    .pick-pill {
-      flex: 1;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 999px;
-      padding: 5px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #334155;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-    .pick-pill.unlocked {
-      background: #dcfce7;
-      border-color: #22c55e;
-      color: #14532d;
-    }
-    .hm-status-txt {
-      text-align: center;
-      font-size: 12px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-top: 10px;
-    }
-
-    .dots-row {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin: 10px 0 12px;
-    }
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #cbd5e1;
-      cursor: pointer;
-    }
-    .dot.active { width: 14px; border-radius: 999px; background: #475569; }
-
-    .comm-card {
-      background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 55%, #ffffff 100%);
-      border: 1px solid #bfdbfe;
-      border-radius: 14px;
-      padding: 12px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .comm-left { display: flex; align-items: center; gap: 10px; }
-    .comm-icon {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: #0284c7; color: #fff;
+    .team-box { width: 72px; }
+    .team-circle {
+      width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 6px;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 15px;
+      font-weight: 800; font-size: 13px; border: 2px solid #16a34a; color: #15803d; background: #f0fdf4;
     }
-    .comm-title { font-size: 13px; font-weight: 800; color: #0f172a; }
-    .comm-sub { font-size: 11px; color: #475569; margin-top: 1px; }
-    .join-btn {
-      background: transparent;
-      border: none;
-      color: #0284c7;
-      font-weight: 800;
-      font-size: 13px;
-      cursor: pointer;
+    .team-circle.b { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+    .team-name { font-size: 13px; font-weight: 700; }
+    .score-mid { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .score-mid span { color: #ef4444; margin: 0 4px; font-size: 12px; }
+    .pill-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; align-items: center; }
+    .mini-pill {
+      flex: 1; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 999px; padding: 6px 8px; font-size: 12px; font-weight: 700;
     }
-
-    .ask-ai-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
+    .venue-line {
+      text-align: center; font-size: 12px; font-weight: 600; color: #334155;
+      margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9;
     }
-    .ask-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
+    .open-cta {
+      margin-top: 10px; width: 100%; background: #0f172a; color: #34d399;
+      border: none; border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 800; cursor: pointer;
     }
-    .ask-brand { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 13.5px; }
-    .beta-tag {
-      background: #22c55e; color: #052e16;
-      font-size: 9.5px; font-weight: 900;
-      padding: 2px 6px; border-radius: 5px;
+    .dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; }
+    .dot { width: 8px; height: 8px; border-radius: 999px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
+    .dot.active { width: 22px; background: #0f172a; }
+    .card {
+      background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
     }
-    .ask-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .bot-avatar {
-      width: 38px; height: 38px; border-radius: 10px;
-      background: #14532d; border: 1.5px solid #4ade80;
-      color: #86efac; display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 13px; flex-shrink: 0;
-    }
-    .ask-field {
-      flex: 1;
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 9px 11px;
-      font-size: 12.5px;
-      color: #0f172a;
-    }
-    .go-ask-btn {
-      background: #0f172a;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .ai-reply-box {
-      margin-top: 9px;
-      background: #f1f5f9;
-      border-left: 3px solid #16a34a;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      color: #1e293b;
-      display: none;
-    }
-
-    .signals-bar {
-      background: #e2e8f0;
-      color: #1e293b;
-      text-align: center;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 8px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .prob-card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 13px;
-      margin-bottom: 12px;
-    }
-    .prob-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .prob-title { font-size: 13.5px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-    .info-i {
-      width: 16px; height: 16px; border-radius: 50%;
-      background: #e2e8f0; color: #475569;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 800;
-    }
-    .upd-txt { font-size: 11px; color: var(--muted); }
-    .prob-nums { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
-    .prob-track { height: 10px; background: #dbeafe; border-radius: 999px; overflow: hidden; }
-    .prob-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); transition: width 0.4s ease; }
-    .prob-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
-
-    .mini-box {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 13px;
-      margin-bottom: 12px;
-    }
-    .mini-box h4 { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
-    .p-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; gap: 8px; }
-    .p-row:last-child { border-bottom: none; }
-
-    .mode-pills { display: flex; gap: 6px; margin-bottom: 10px; }
-    .m-pill {
-      flex: 1; padding: 6px 8px; border-radius: 8px;
-      border: 1px solid #cbd5e1; background: #f8fafc;
-      font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer;
-    }
-    .m-pill.active { background: #14532d; border-color: #16a34a; color: #fff; }
-
-    .disc-note {
-      font-size: 10.5px;
-      color: var(--muted);
-      text-align: center;
-      padding: 8px 10px 14px;
-      line-height: 1.4;
-    }
-
-    .modal-wrap {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.68);
-      z-index: 60;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-    .modal-wrap.open { display: flex; }
-    .modal-panel {
-      background: #fff;
-      color: #0f172a;
-      border-radius: 16px;
-      padding: 18px;
-      width: 100%;
-      max-width: 370px;
-    }
-    .plan-row {
+    .card-title {
+      font-size: 14px; font-weight: 800; margin-bottom: 10px;
       display: flex; justify-content: space-between; align-items: center;
-      background: #f8fafc; border: 1px solid #e2e8f0;
-      padding: 11px; border-radius: 10px; margin: 10px 0;
     }
-    .btn-dark {
-      background: #0f172a; color: #fff; border: none;
-      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+    .prob-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+    .prob-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .prob-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
+    .strip-meta { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.45; }
+    .ask-row { display: flex; gap: 8px; margin-top: 8px; }
+    .ask-input {
+      flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 13px;
     }
-
+    .ask-btn {
+      background: #0f172a; color: #fff; border: none; border-radius: 10px;
+      padding: 0 16px; font-weight: 700; cursor: pointer;
+    }
+    .ask-reply {
+      margin-top: 10px; font-size: 12px; background: #f8fafc; padding: 10px;
+      border-radius: 10px; border: 1px solid #e2e8f0; color: #1e293b; display: none;
+    }
+    .intel-row {
+      display: flex; justify-content: space-between; padding: 9px 0;
+      border-bottom: 1px solid #f1f5f9; font-size: 13px;
+    }
+    .intel-row:last-child { border-bottom: none; }
+    .intel-label { color: #64748b; }
+    .intel-val { font-weight: 700; color: #0f172a; text-align: right; }
+    .comm-item {
+      padding: 10px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0;
+      margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .over-tag {
+      background: #0f172a; color: #fff; font-size: 11px; font-weight: 800;
+      padding: 3px 7px; border-radius: 6px;
+    }
+    .bol-btn {
+      background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7;
+      padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;
+      cursor: pointer; white-space: nowrap;
+    }
+    .player-card {
+      padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;
+      margin-bottom: 8px; background: #f8fafc;
+    }
+    /* Match Detail Modal when tapping a match card */
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
+      z-index: 50; padding: 14px; overflow-y: auto;
+    }
+    .modal-backdrop.open { display: flex; align-items: flex-start; justify-content: center; }
+    .modal-box {
+      width: 100%; max-width: 480px; background: #fff; border-radius: 18px;
+      padding: 16px; margin-top: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    }
+    .modal-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+    .close-btn {
+      background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
+    }
     .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 460px;
-      background: var(--nav-bg);
-      border-top: 1px solid #1e293b;
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 4px 10px;
-      z-index: 50;
+      position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a;
+      display: flex; justify-content: space-around; padding: 10px 0; z-index: 35;
     }
-    .nav-item {
-      background: transparent;
-      border: none;
-      color: #cbd5e1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      cursor: pointer;
-      flex: 1;
+    .nav-btn {
+      background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700;
+      display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
     }
-    .nav-item .ico { font-size: 17px; }
-    .nav-item.active { color: var(--accent-neon); }
+    .nav-btn.active { color: #34d399; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
   </style>
 </head>
 <body>
-
-  <header class="top-header">
-    <button class="unlock-pill" id="proHeaderBtn" onclick="openModal('proModal')">Unlock AI Pro</button>
-    <div class="cn-logo"><span class="c-part">C</span><span class="n-part">N</span></div>
-    <button class="mail-btn" onclick="openModal('inboxModal')">
-      ✉<span class="mail-dot"></span>
-    </button>
-  </header>
-
-  <div class="filter-strip">
-    <button class="f-chip" onclick="filterMatches('UPCOMING', this)">Upcoming</button>
-    <button class="f-chip active" onclick="filterMatches('LIVE', this)"><span class="live-red-dot"></span> Live</button>
-    <button class="f-chip" onclick="selectMatchByIndex(0, this)">⚡ IND vs AUS</button>
-    <button class="f-chip" onclick="selectMatchByIndex(1, this)">⚡ CSK vs MI</button>
+  <div class="topbar">
+    <button class="pro-btn" onclick="switchTab('profile')">Unlock AI Pro</button>
+    <div class="brand">CN</div>
+    <button class="voice-pill" onclick="speakLatest()">🔊 Bol Score</button>
   </div>
 
-  <!-- HOME VIEW -->
-  <section class="view-section active" id="view-home">
-    <div class="hero-match-card" id="heroCard">
-      <div class="hm-top">
-        <span id="hmSeries">Match • Series</span>
-        <span class="live-badge-box" id="hmStatusBadge">LIVE</span>
-      </div>
-      <div class="hm-time" id="hmTime">Live Match Analytics</div>
+  <div class="chips" id="filterChips">
+    <button class="chip" onclick="setFilter('UPCOMING', this)">Upcoming</button>
+    <button class="chip active" onclick="setFilter('LIVE', this)">🔴 Live</button>
+    <button class="chip" onclick="setFilter('ALL', this)">⚡ All Matches</button>
+  </div>
 
-      <div class="hm-teams-row">
-        <div class="team-col">
-          <div class="flag-circle a" id="hmFlagA">IND</div>
-          <div class="t-code" id="hmCodeA">IND</div>
+  <div class="container">
+    <!-- HOME TAB -->
+    <div id="tab-home" class="tab-section active">
+      <div id="heroContainer"></div>
+      <div class="dots" id="matchDots"></div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>✦ Ask AI <span style="background:#dcfce7;color:#166534;padding:2px 7px;border-radius:999px;font-size:11px;">3 FREE</span></span>
         </div>
-        <div class="score-center">
-          <div class="score-main" id="hmScoreLine">168/3(17.2) <span class="vs-txt">VS</span> 0/0(0.0)</div>
+        <div class="ask-row">
+          <input id="askInput" class="ask-input" placeholder="Best C & VC picks" />
+          <button class="ask-btn" onclick="askAi()">Ask</button>
         </div>
-        <div class="team-col">
-          <div class="flag-circle b" id="hmFlagB">AUS</div>
-          <div class="t-code" id="hmCodeB">AUS</div>
+        <div id="askReply" class="ask-reply"></div>
+      </div>
+
+      <div class="card" id="homeProbCard"></div>
+    </div>
+
+    <!-- MATCH TAB -->
+    <div id="tab-match" class="tab-section">
+      <div id="matchTabContent"></div>
+    </div>
+
+    <!-- EXPERTS TAB -->
+    <div id="tab-experts" class="tab-section">
+      <div class="card" id="expertsContainer"></div>
+    </div>
+
+    <!-- FEED TAB -->
+    <div id="tab-feed" class="tab-section">
+      <div class="card">
+        <div class="card-title">
+          <span>🎙️ Live Voice & Commentary Feed</span>
+          <button class="bol-btn" onclick="speakLatest()">🔊 Bol Latest</button>
         </div>
+        <div id="feedContainer"></div>
       </div>
-
-      <div class="picks-strip">
-        <div class="pick-pill" id="aiPillBtn" onclick="handleAiPill()">✦ AI 🔒</div>
-        <div class="pick-pill" onclick="switchNav('experts')"><span id="fanPercentPill">Fan 57%</span></div>
-        <div class="pick-pill" id="expPillBtn" onclick="handleExpertPill()">✎ Expert 🔒</div>
-      </div>
-
-      <div class="hm-status-txt" id="hmStatusNote">Pitch & win probability insights ready.</div>
     </div>
 
-    <div class="dots-row" id="matchDotsRow"></div>
-
-    <div class="comm-card">
-      <div class="comm-left">
-        <div class="comm-icon">✈</div>
-        <div>
-          <div class="comm-title">Join the CricNawab Telegram</div>
-          <div class="comm-sub">Community for exclusive tips!</div>
-        </div>
+    <!-- PROFILE TAB -->
+    <div id="tab-profile" class="tab-section">
+      <div class="card">
+        <div class="card-title"><span>👑 CricNawab AI Pro Pass</span></div>
+        <p style="font-size:13px;color:#475569;margin-bottom:12px;">
+          Unlock full AI win projections, session ranges, and H2H/GL expert picks.
+        </p>
+        <div class="intel-row"><span class="intel-label">Match Day Pass</span><span class="intel-val">₹99</span></div>
+        <div class="intel-row"><span class="intel-label">Monthly Pro Pass</span><span class="intel-val">₹249</span></div>
       </div>
-      <button class="join-btn" onclick="openModal('tgModal')">Join</button>
-    </div>
-
-    <div class="dots-row" style="margin-top:-4px;margin-bottom:10px;">
-      <span class="dot active"></span>
-      <span class="dot"></span>
-    </div>
-
-    <div class="ask-ai-card">
-      <div class="ask-top">
-        <div class="ask-brand">
-          <span>✦ Ask AI</span>
-          <span class="beta-tag" id="aiQuotaTag">3 FREE</span>
-        </div>
-        <span style="color:#94a3b8;font-size:13px;cursor:pointer;" onclick="openModal('helpModal')">ⓘ</span>
-      </div>
-      <div class="ask-input-wrap">
-        <div class="bot-avatar">CN</div>
-        <input class="ask-field" id="homeAiInput" type="text" placeholder="Best C & VC picks" />
-        <button class="go-ask-btn" onclick="runHomeAi()">Ask</button>
-      </div>
-      <div class="ai-reply-box" id="homeAiReply"></div>
-    </div>
-
-    <div class="signals-bar">AI Signals</div>
-    <div class="prob-card">
-      <div class="prob-head">
-        <div class="prob-title">✦ AI Win Probability <span class="info-i">i</span></div>
-        <div class="upd-txt" id="updAgoTxt">Updated just now</div>
-      </div>
-      <div class="prob-nums">
-        <span id="probTextA">IND 54%</span>
-        <span id="probTextB">AUS 46%</span>
-      </div>
-      <div class="prob-track">
-        <div class="prob-fill" id="probMeterFill" style="width: 54%;"></div>
-      </div>
-      <div class="prob-sub" id="signalsSummaryLine">Projected: -- • Session: -- • Trend: --</div>
-    </div>
-
-    <div class="disc-note">
-      Disclaimer: CricNawab-AI provides original match analytics & fantasy research for informational/entertainment purposes only. No betting or guaranteed outcomes.
-    </div>
-  </section>
-
-  <!-- MATCH VIEW -->
-  <section class="view-section" id="view-match">
-    <div class="mini-box">
-      <h4>Match Scorecard & Pitch Intel</h4>
-      <div class="p-row"><span>Venue</span><strong id="mVenue">--</strong></div>
-      <div class="p-row"><span>Pitch Type</span><strong id="mPitch">--</strong></div>
-      <div class="p-row"><span>Avg 1st Innings</span><strong id="mAvg">--</strong></div>
-      <div class="p-row"><span>Projected Score</span><strong id="mProj">--</strong></div>
-      <div class="p-row"><span>Session Range</span><strong id="mSess">--</strong></div>
-      <div class="p-row"><span>Momentum</span><strong id="mMom">--</strong></div>
-    </div>
-  </section>
-
-  <!-- EXPERTS VIEW -->
-  <section class="view-section" id="view-experts">
-    <div class="mini-box">
-      <h4>AI Fantasy C & VC Picks</h4>
-      <div class="mode-pills">
-        <button class="m-pill active" id="pillH2H" onclick="setFantasyMode('H2H')">Head-to-Head</button>
-        <button class="m-pill" id="pillGL" onclick="setFantasyMode('GL')">Grand League 🔒</button>
-      </div>
-      <div id="expertPicksList"></div>
-    </div>
-  </section>
-
-  <!-- FEED VIEW -->
-  <section class="view-section" id="view-feed">
-    <div class="mini-box">
-      <h4>Match Commentary Feed</h4>
-      <div id="feedCommList"></div>
-    </div>
-  </section>
-
-  <!-- PROFILE VIEW -->
-  <section class="view-section" id="view-profile">
-    <div class="mini-box">
-      <h4>CricNawab-AI Account & Pro Status</h4>
-      <div class="p-row"><span>Plan Status</span><strong id="profPlanTxt">Free Tier</strong></div>
-      <div class="p-row"><span>Free AI Questions Left</span><strong id="profQuotaTxt">3</strong></div>
-      <div class="p-row"><span>Disclaimer</span><span>Analytics Only</span></div>
-      <button class="btn-dark" style="width:100%;margin-top:10px;" onclick="openModal('proModal')">Manage AI Pro Pass</button>
-    </div>
-  </section>
-
-  <!-- MODALS -->
-  <div class="modal-wrap" id="proModal">
-    <div class="modal-panel">
-      <h3 style="font-size:16px;margin-bottom:4px;">Unlock CricNawab-AI Pro</h3>
-      <p style="font-size:12px;color:#64748b;">Get Grand League picks, unlimited Ask AI, and Pro signals.</p>
-      <div class="plan-row">
-        <div><strong>7-Day Pass</strong><div style="font-size:11px;color:#64748b;">GL Picks + Unlimited AI</div></div>
-        <button class="btn-dark" onclick="activateProDemo('7-Day Pass')">₹99</button>
-      </div>
-      <div class="plan-row">
-        <div><strong>30-Day Pass</strong><div style="font-size:11px;color:#64748b;">Full Series Access</div></div>
-        <button class="btn-dark" onclick="activateProDemo('30-Day Pass')">₹249</button>
-      </div>
-      <button class="btn-dark" style="width:100%;background:#e2e8f0;color:#0f172a;" onclick="closeModal('proModal')">Close</button>
     </div>
   </div>
 
-  <div class="modal-wrap" id="inboxModal">
-    <div class="modal-panel">
-      <h3 style="font-size:15px;margin-bottom:8px;">Match Alerts & Updates</h3>
-      <div class="plan-row"><div><strong>AI Signals Ready</strong><div style="font-size:11px;color:#64748b;">Match probabilities, pitch notes, and C/VC picks loaded.</div></div></div>
-      <button class="btn-dark" style="width:100%;" onclick="closeModal('inboxModal')">Done</button>
-    </div>
+  <!-- TAP-TO-OPEN MATCH DETAIL MODAL -->
+  <div id="matchModal" class="modal-backdrop" onclick="if(event.target === this) closeMatchModal()">
+    <div class="modal-box" id="matchModalBody"></div>
   </div>
 
-  <div class="modal-wrap" id="tgModal">
-    <div class="modal-panel">
-      <h3 style="font-size:15px;margin-bottom:6px;">CricNawab Community</h3>
-      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Set your official Telegram invite URL in the config before public launch.</p>
-      <button class="btn-dark" style="width:100%;" onclick="closeModal('tgModal')">Got It</button>
-    </div>
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="switchTab('home')"><span>🏠</span><span>HOME</span></button>
+    <button class="nav-btn" id="nav-match" onclick="switchTab('match')"><span>🏏</span><span>MATCH</span></button>
+    <button class="nav-btn" id="nav-experts" onclick="switchTab('experts')"><span>💡</span><span>EXPERTS</span></button>
+    <button class="nav-btn" id="nav-feed" onclick="switchTab('feed')"><span>📰</span><span>FEED</span></button>
+    <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')"><span>⚙️</span><span>PROFILE</span></button>
   </div>
-
-  <div class="modal-wrap" id="helpModal">
-    <div class="modal-panel">
-      <h3 style="font-size:15px;margin-bottom:6px;">How Ask AI Works</h3>
-      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Free users get 3 AI questions; Pro unlocks unlimited questions and Grand League picks.</p>
-      <button class="btn-dark" style="width:100%;" onclick="closeModal('helpModal')">Close</button>
-    </div>
-  </div>
-
-  <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-home" onclick="switchNav('home')"><span class="ico">⌂</span><span>HOME</span></button>
-    <button class="nav-item" id="nav-match" onclick="switchNav('match')"><span class="ico">🏏</span><span>MATCH</span></button>
-    <button class="nav-item" id="nav-experts" onclick="switchNav('experts')"><span class="ico">💡</span><span>EXPERTS</span></button>
-    <button class="nav-item" id="nav-feed" onclick="switchNav('feed')"><span class="ico">▤</span><span>FEED</span></button>
-    <button class="nav-item" id="nav-profile" onclick="switchNav('profile')"><span class="ico">⚙</span><span>PROFILE</span></button>
-  </nav>
 
   <script>
-    let matchesData = [];
-    let currentIdx = 0;
-    let currentFantasyMode = "H2H";
-    let isPro = false;
-    let freeQuestionsLeft = 3;
+    let allMatches = [];
+    let filteredMatches = [];
+    let activeIndex = 0;
+    let currentFilter = 'LIVE';
 
-    async function loadData() {
-      try {
-        const res = await fetch('/api/matches');
-        if (!res.ok) return;
-        matchesData = await res.json();
-        renderAll();
-      } catch (e) {}
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        alert('Voice speech is not supported in this browser.');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'en-IN';
+      utter.rate = 0.98;
+      window.speechSynthesis.speak(utter);
     }
 
-    function renderDots() {
-      const dotsWrap = document.getElementById("matchDotsRow");
-      dotsWrap.innerHTML = matchesData.map((_, idx) => `
-        <span class="dot ${idx === currentIdx ? 'active' : ''}" onclick="selectMatchByIndex(${idx}, this)"></span>
-      `).join("");
+    function getActiveMatch() {
+      return filteredMatches[activeIndex] || allMatches[0] || null;
     }
 
-    function renderProUI() {
-      const headerBtn = document.getElementById("proHeaderBtn");
-      const aiPill = document.getElementById("aiPillBtn");
-      const expPill = document.getElementById("expPillBtn");
-      const glBtn = document.getElementById("pillGL");
-      const quotaTag = document.getElementById("aiQuotaTag");
+    function speakLatest() {
+      const m = getActiveMatch();
+      if (!m) return;
+      const latest = m.commentary?.[0]?.text || '';
+      const spoken = `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB}. ${latest}`;
+      speakText(spoken);
+    }
 
-      if (isPro) {
-        headerBtn.innerText = "AI Pro Active";
-        headerBtn.classList.add("pro-on");
-        aiPill.innerText = "✦ AI Signal";
-        aiPill.classList.add("unlocked");
-        expPill.innerText = "✎ GL Ready";
-        expPill.classList.add("unlocked");
-        glBtn.innerText = "Grand League";
-        quotaTag.innerText = "PRO ∞";
-        document.getElementById("profPlanTxt").innerText = "AI Pro (Active)";
-        document.getElementById("profQuotaTxt").innerText = "Unlimited";
+    function openMatchModal() {
+      renderAll();
+      document.getElementById('matchModal').classList.add('open');
+    }
+
+    function closeMatchModal() {
+      document.getElementById('matchModal').classList.remove('open');
+    }
+
+    function switchTab(tabName) {
+      closeMatchModal();
+      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById('tab-' + tabName);
+      const nav = document.getElementById('nav-' + tabName);
+      if (target) target.classList.add('active');
+      if (nav) nav.classList.add('active');
+    }
+
+    function setFilter(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      applyFilter();
+    }
+
+    function applyFilter() {
+      if (currentFilter === 'LIVE') {
+        const liveOnly = allMatches.filter(m => m.status === 'LIVE');
+        filteredMatches = liveOnly.length ? liveOnly : allMatches;
+      } else if (currentFilter === 'UPCOMING') {
+        const upOnly = allMatches.filter(m => m.status === 'UPCOMING');
+        filteredMatches = upOnly.length ? upOnly : allMatches;
       } else {
-        headerBtn.innerText = "Unlock AI Pro";
-        headerBtn.classList.remove("pro-on");
-        aiPill.innerText = "✦ AI 🔒";
-        aiPill.classList.remove("unlocked");
-        expPill.innerText = "✎ Expert 🔒";
-        expPill.classList.remove("unlocked");
-        glBtn.innerText = "Grand League 🔒";
-        quotaTag.innerText = `${freeQuestionsLeft} FREE`;
-        document.getElementById("profPlanTxt").innerText = "Free Tier";
-        document.getElementById("profQuotaTxt").innerText = String(freeQuestionsLeft);
+        filteredMatches = allMatches;
       }
-    }
-
-    function renderAll() {
-      const m = matchesData[currentIdx];
-      if (!m) return;
-
-      renderDots();
-      renderProUI();
-
-      document.getElementById("hmSeries").innerText = `${m.series} • ${m.matchTitle}`;
-      const badge = document.getElementById("hmStatusBadge");
-      badge.innerText = m.status;
-      badge.className = m.status === "LIVE" ? "live-badge-box" : "live-badge-box up";
-
-      document.getElementById("hmTime").innerText = m.timeLabel;
-      document.getElementById("hmFlagA").innerText = m.teamA;
-      document.getElementById("hmCodeA").innerText = m.teamA;
-      document.getElementById("hmFlagB").innerText = m.teamB;
-      document.getElementById("hmCodeB").innerText = m.teamB;
-
-      document.getElementById("hmScoreLine").innerHTML = m.status === "LIVE"
-        ? `${m.runsA}/${m.wicketsA}(${m.oversA}) <span class="vs-txt">VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})`
-        : `${m.teamA} <span class="vs-txt">VS</span> ${m.teamB}`;
-
-      document.getElementById("fanPercentPill").innerText = `Fan ${m.ai.crowdA}%`;
-      document.getElementById("hmStatusNote").innerText = `${m.venue} • ${m.ai.momentum}`;
-
-      document.getElementById("probTextA").innerText = `${m.teamA} ${m.ai.probA}%`;
-      document.getElementById("probTextB").innerText = `${m.teamB} ${m.ai.probB}%`;
-      document.getElementById("probMeterFill").style.width = `${m.ai.probA}%`;
-      document.getElementById("updAgoTxt").innerText = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      document.getElementById("signalsSummaryLine").innerText =
-        `Proj: ${m.ai.projRange} • Session: ${m.ai.sessionRange} • Crowd: ${m.teamA} ${m.ai.crowdA}%`;
-
-      document.getElementById("mVenue").innerText = m.venue;
-      document.getElementById("mPitch").innerText = m.pitchType;
-      document.getElementById("mAvg").innerText = m.avgScore;
-      document.getElementById("mProj").innerText = m.ai.projRange;
-      document.getElementById("mSess").innerText = m.ai.sessionRange;
-      document.getElementById("mMom").innerText = m.ai.momentum;
-
-      renderFantasyList();
-
-      document.getElementById("feedCommList").innerHTML = m.commentary.map(c => `
-        <div class="p-row"><span><strong>${c.over}</strong> — ${c.text}</span></div>
-      `).join("");
-    }
-
-    function handleAiPill() {
-      if (!isPro) {
-        openModal('proModal');
-        return;
-      }
-      const m = matchesData[currentIdx];
-      const box = document.getElementById("homeAiReply");
-      box.style.display = "block";
-      box.innerText = `Pro AI Signal (${m.teamA} vs ${m.teamB}): ${m.teamA} ${m.ai.probA}% win edge, projected ${m.ai.projRange}, session ${m.ai.sessionRange}.`;
-    }
-
-    function handleExpertPill() {
-      if (!isPro) {
-        openModal('proModal');
-        return;
-      }
-      currentFantasyMode = "GL";
-      switchNav('experts');
-      setFantasyMode("GL");
-    }
-
-    function setFantasyMode(mode) {
-      if (mode === "GL" && !isPro) {
-        openModal('proModal');
-        return;
-      }
-      currentFantasyMode = mode;
-      document.getElementById("pillH2H").classList.toggle("active", mode === "H2H");
-      document.getElementById("pillGL").classList.toggle("active", mode === "GL");
-      renderFantasyList();
-    }
-
-    function renderFantasyList() {
-      const m = matchesData[currentIdx];
-      if (!m) return;
-      const list = (currentFantasyMode === "GL" && isPro) ? m.glPlayers : m.h2hPlayers;
-      document.getElementById("expertPicksList").innerHTML = list.map(p => `
-        <div class="p-row">
-          <div><strong>${p.name}</strong> (${p.role})<div style="font-size:11px;color:#64748b;">${p.reason}</div></div>
-          <strong>${p.tag || 'Pick'}</strong>
-        </div>
-      `).join("");
-    }
-
-    function filterMatches(statusType, btn) {
-      document.querySelectorAll(".f-chip").forEach(c => c.classList.remove("active"));
-      if (btn) btn.classList.add("active");
-      const foundIdx = matchesData.findIndex(item => item.status === statusType);
-      if (foundIdx >= 0) {
-        currentIdx = foundIdx;
-        renderAll();
-      }
-    }
-
-    function selectMatchByIndex(idx, btn) {
-      if (!matchesData[idx]) return;
-      if (btn && btn.classList.contains("f-chip")) {
-        document.querySelectorAll(".f-chip").forEach(c => c.classList.remove("active"));
-        btn.classList.add("active");
-      }
-      currentIdx = idx;
+      if (activeIndex >= filteredMatches.length) activeIndex = 0;
       renderAll();
     }
 
-    async function runHomeAi() {
-      const inp = document.getElementById("homeAiInput");
-      const q = inp.value.trim() || "Best C & VC picks";
-      const m = matchesData[currentIdx];
+    function selectMatch(idx) {
+      activeIndex = idx;
+      renderAll();
+    }
+
+    function buildMatchDetailHtml(m, showCloseBtn) {
+      const commHtml = (m.commentary || []).map(c => `
+        <div class="comm-item">
+          <div><span class="over-tag">${c.over}</span> <span style="font-size:13px;margin-left:6px;">${c.text}</span></div>
+          <button class="bol-btn" onclick="speakText('${String(c.text).replace(/'/g, '')}')">🔊 Bol</button>
+        </div>
+      `).join('');
+
+      return `
+        <div class="modal-head">
+          <div>
+            <div style="font-size:14px;font-weight:800;">${m.teamA} vs ${m.teamB} • ${m.status}</div>
+            <div style="font-size:11px;color:#64748b;">${m.series} • ${m.timeLabel}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="bol-btn" onclick="speakLatest()">🔊 Bol</button>
+            ${showCloseBtn ? '<button class="close-btn" onclick="closeMatchModal()">✕ Close</button>' : ''}
+          </div>
+        </div>
+
+        <div class="score-row" style="margin:10px 0 14px;">
+          <div class="team-box">
+            <div class="team-circle">${m.teamA}</div>
+            <div class="team-name">${m.teamA}</div>
+          </div>
+          <div class="score-mid">
+            ${m.runsA}/${m.wicketsA}(${m.oversA}) <span>VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})
+          </div>
+          <div class="team-box">
+            <div class="team-circle b">${m.teamB}</div>
+            <div class="team-name">${m.teamB}</div>
+          </div>
+        </div>
+
+        <div class="intel-row"><span class="intel-label">Win Probability</span><span class="intel-val">${m.teamA} ${m.ai.probA}% • ${m.teamB} ${m.ai.probB}%</span></div>
+        <div class="intel-row"><span class="intel-label">Projected Score</span><span class="intel-val">${m.ai.projRange}</span></div>
+        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.ai.sessionRange}</span></div>
+        <div class="intel-row"><span class="intel-label">Momentum</span><span class="intel-val">${m.ai.momentum}</span></div>
+        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue}</span></div>
+
+        <div style="margin-top:12px;">
+          <div style="font-size:13px;font-weight:800;margin-bottom:8px;">🎙️ Live Updates (Tap 🔊 Bol to Hear)</div>
+          ${commHtml}
+        </div>
+      `;
+    }
+
+    function renderAll() {
+      const m = getActiveMatch();
       if (!m) return;
+      const isUp = m.status === 'UPCOMING';
 
-      if (!isPro && freeQuestionsLeft <= 0) {
-        openModal('proModal');
-        return;
+      document.getElementById('heroContainer').innerHTML = `
+        <div class="hero-card" onclick="openMatchModal()">
+          <div class="hero-top">
+            <div class="series-title">${m.series} • ${m.teamA} vs ${m.teamB}</div>
+            <div class="live-badge ${isUp ? 'upcoming' : ''}">${m.status}</div>
+          </div>
+          <div class="sub-source">${m.timeLabel}</div>
+          <div class="score-row">
+            <div class="team-box">
+              <div class="team-circle">${m.teamA}</div>
+              <div class="team-name">${m.teamA}</div>
+            </div>
+            <div class="score-mid">
+              ${m.runsA}/${m.wicketsA}(${m.oversA}) <span>VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})
+            </div>
+            <div class="team-box">
+              <div class="team-circle b">${m.teamB}</div>
+              <div class="team-name">${m.teamB}</div>
+            </div>
+          </div>
+          <div class="pill-row">
+            <div class="mini-pill">✦ AI ${m.ai.probA}%</div>
+            <div class="mini-pill">Fan ${m.ai.crowdA}%</div>
+            <button class="bol-btn" onclick="event.stopPropagation(); speakLatest()">🔊 Bol</button>
+          </div>
+          <div class="venue-line">${m.venue} • ${m.ai.momentum}</div>
+          <button class="open-cta" onclick="event.stopPropagation(); openMatchModal()">🏏 Open Full Live Match & Voice</button>
+        </div>
+      `;
+
+      document.getElementById('matchDots').innerHTML = filteredMatches
+        .map((_, i) => `<div class="dot ${i === activeIndex ? 'active' : ''}" onclick="selectMatch(${i})"></div>`)
+        .join('');
+
+      document.getElementById('homeProbCard').innerHTML = `
+        <div class="card-title"><span>✦ AI Win Probability</span><span style="font-size:11px;color:#64748b;">Live Model</span></div>
+        <div class="prob-labels"><span>${m.teamA} ${m.ai.probA}%</span><span>${m.teamB} ${m.ai.probB}%</span></div>
+        <div class="prob-bar"><div class="prob-fill" style="width:${m.ai.probA}%"></div></div>
+        <div class="strip-meta">${m.ai.projRange} • Session: ${m.ai.sessionRange}</div>
+      `;
+
+      document.getElementById('matchTabContent').innerHTML = `
+        <div class="card">${buildMatchDetailHtml(m, false)}</div>
+      `;
+
+      document.getElementById('matchModalBody').innerHTML = buildMatchDetailHtml(m, true);
+
+      const commHtml = (m.commentary || []).map(c => `
+        <div class="comm-item">
+          <div><span class="over-tag">${c.over}</span> <span style="font-size:13px;margin-left:6px;">${c.text}</span></div>
+          <button class="bol-btn" onclick="speakText('${String(c.text).replace(/'/g, '')}')">🔊 Bol</button>
+        </div>
+      `).join('');
+
+      document.getElementById('feedContainer').innerHTML = commHtml;
+
+      document.getElementById('expertsContainer').innerHTML = `
+        <div class="card-title"><span>💡 H2H & GL Picks (${m.teamA} vs ${m.teamB})</span></div>
+        ${(m.h2hPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
+        ${(m.glPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
+      `;
+    }
+
+    async function askAi() {
+      const m = getActiveMatch();
+      const input = document.getElementById('askInput');
+      const replyBox = document.getElementById('askReply');
+      if (!m) return;
+      replyBox.style.display = 'block';
+      replyBox.textContent = 'Analyzing live match data...';
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ matchId: m.id, question: input.value || 'Best C & VC picks' })
+        });
+        const data = await res.json();
+        replyBox.textContent = data.reply;
+      } catch (e) {
+        replyBox.textContent = 'Unable to fetch AI reply right now.';
       }
+    }
 
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matchId: m.id, question: q })
-      });
-      const data = await res.json();
-
-      if (!isPro) {
-        freeQuestionsLeft -= 1;
-        renderProUI();
+    async function loadMatches() {
+      try {
+        const res = await fetch('/api/matches');
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          allMatches = data;
+          applyFilter();
+        }
+      } catch (e) {
+        console.error(e);
       }
-
-      const box = document.getElementById("homeAiReply");
-      box.style.display = "block";
-      box.innerText = data.reply;
     }
 
-    function switchNav(key) {
-      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-      document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
-      document.getElementById(`nav-${key}`).classList.add("active");
-      document.getElementById(`view-${key}`).classList.add("active");
-    }
-
-    function openModal(id) { document.getElementById(id).classList.add("open"); }
-    function closeModal(id) { document.getElementById(id).classList.remove("open"); }
-
-    function activateProDemo(plan) {
-      // Connect real payment gateway (Razorpay / Stripe / UPI) verification here before setting isPro = true
-      isPro = true;
-      renderProUI();
-      renderFantasyList();
-      closeModal('proModal');
-    }
-
-    loadData();
-    setInterval(loadData, 10000);
+    loadMatches();
+    setInterval(loadMatches, 60000);
   </script>
 </body>
 </html>
