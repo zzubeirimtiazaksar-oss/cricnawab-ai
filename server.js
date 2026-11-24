@@ -1,188 +1,341 @@
 const express = require('express');
 const path = require('path');
-const app = express();
 
+const app = express();
 const PORT = process.env.PORT || 3000;
-const CRICKET_API_URL = process.env.CRICKET_API_URL || '';
+
+const CRICKET_API_KEY =
+  process.env.CRICKET_API_KEY || 'UIKB9bVP110kBO6FKokI5yn2MMjsNTM2SLKWm1kFkPT2p8qdZl6OKHs711n4';
+
+const CUSTOM_API_URL = process.env.CRICKET_API_URL || '';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let matches = [
+const fallbackMatches = [
   {
-    id: 101,
-    status: "LIVE",
-    series: "International T20 Series",
-    matchTitle: "3rd T20I • Mumbai",
-    timeLabel: "Live Match • Wankhede Stadium",
-    teamA: "IND",
-    teamAFull: "India",
+    id: 'ind-aus-1',
+    series: 'T20 International Series',
+    matchTitle: 'Match 1',
+    status: 'LIVE',
+    timeLabel: 'Live • Analytics Feed',
+    teamA: 'IND',
+    teamB: 'AUS',
     runsA: 168,
     wicketsA: 3,
-    oversA: "17.2",
-    teamB: "AUS",
-    teamBFull: "Australia",
+    oversA: '17.2',
     runsB: 0,
     wicketsB: 0,
-    oversB: "0.0",
-    venue: "Wankhede Stadium, Mumbai",
-    avgScore: 186,
-    pitchType: "Batting Friendly • Even Bounce",
-    weather: "29°C • Clear Night",
-    paceHelp: 64,
-    tossNote: "Chasing teams hold a 56% win advantage under lights",
-    h2h: "IND 19 - 15 AUS",
-    xiA: ["Y. Jaiswal", "A. Sharma", "S. Yadav (C)", "T. Varma", "H. Pandya", "R. Singh", "A. Patel", "J. Bumrah", "A. Singh", "R. Bishnoi", "V. Chakaravarthy"],
-    xiB: ["T. Head", "M. Marsh (C)", "J. Inglis", "G. Maxwell", "M. Stoinis", "T. David", "M. Short", "S. Abbott", "N. Ellis", "A. Zampa", "J. Hazlewood"],
-    recentBalls: ["4", "1", "6", "2", "1", "0"],
-    commentary: [
-      { over: "17.2", text: "Driven firmly through extra cover for a single." },
-      { over: "17.1", text: "FOUR! Cleanly timed past mid-off for a boundary." },
-      { over: "16.6", text: "SIX! Pulled into the stands over deep mid-wicket." },
-      { over: "16.5", text: "Two runs taken into the deep backward square leg gap." }
-    ],
+    oversB: '0.0',
+    venue: 'Wankhede Stadium, Mumbai',
+    pitchType: 'Batting Friendly',
+    avgScore: '186',
+    ai: {
+      probA: 64,
+      probB: 36,
+      crowdA: 57,
+      projRange: '15Ov: ~145 | 20Ov: ~194',
+      sessionRange: '6Ov: 48-55 | 10Ov: 82-94',
+      momentum: 'IND Ahead • CRR 9.69'
+    },
     h2hPlayers: [
-      { name: "Suryakumar Yadav", role: "BAT", tag: "C", reason: "Strong death-over strike rate and high venue consistency" },
-      { name: "Jasprit Bumrah", role: "BOWL", tag: "VC", reason: "Controlled economy and high wicket threat in key overs" },
-      { name: "Hardik Pandya", role: "ALL", tag: "", reason: "Balanced fantasy points from middle/death overs and batting" },
-      { name: "Travis Head", role: "BAT", tag: "", reason: "Fast powerplay scoring rate against new-ball bowlers" },
-      { name: "Axar Patel", role: "ALL", tag: "", reason: "Economical spin overs plus lower-order batting value" }
+      { name: 'Suryakumar Yadav', role: 'Batter', tag: 'C', reason: 'Strong scoring rate in middle and death overs.' },
+      { name: 'Jasprit Bumrah', role: 'Bowler', tag: 'VC', reason: 'High wicket threat with new ball and at death.' },
+      { name: 'Hardik Pandya', role: 'All-Rounder', tag: 'Safe', reason: 'Dual impact with bat and overs.' }
     ],
     glPlayers: [
-      { name: "Abhishek Sharma", role: "BAT", tag: "C", reason: "High-ceiling differential opener with big innings potential" },
-      { name: "Arshdeep Singh", role: "BOWL", tag: "VC", reason: "Swing up front and death-over wicket upside" },
-      { name: "Marcus Stoinis", role: "ALL", tag: "", reason: "Power hitter with handy middle-overs bowling" },
-      { name: "Rinku Singh", role: "BAT", tag: "", reason: "Late-innings boundary acceleration upside" },
-      { name: "Nathan Ellis", role: "BOWL", tag: "", reason: "Slower-ball variations suited to this surface" }
+      { name: 'Axar Patel', role: 'All-Rounder', tag: 'GL C', reason: 'Spin matchup advantage and handy lower-order runs.' },
+      { name: 'Travis Head', role: 'Batter', tag: 'GL VC', reason: 'High-impact powerplay hitter for differential upside.' },
+      { name: 'Arshdeep Singh', role: 'Bowler', tag: 'Diff', reason: 'Swing and death-over wicket potential.' }
+    ],
+    commentary: [
+      { over: '17.2', text: 'Single taken into the off-side; strike rotates smoothly.' },
+      { over: '17.1', text: 'Clean hit over deep mid-wicket for six runs.' },
+      { over: '16.6', text: 'Driven past cover for four.' }
     ]
   },
   {
-    id: 102,
-    status: "UPCOMING",
-    series: "Premier T20 League",
-    matchTitle: "Match 14 • Chennai",
-    timeLabel: "7:30 PM IST • Toss at 7:00 PM",
-    teamA: "CSK",
-    teamAFull: "Chennai Super Kings",
+    id: 'csk-mi-2',
+    series: 'League Clash',
+    matchTitle: 'Match 2',
+    status: 'UPCOMING',
+    timeLabel: 'Upcoming • Pre-Match Intel',
+    teamA: 'CSK',
+    teamB: 'MI',
     runsA: 0,
     wicketsA: 0,
-    oversA: "0.0",
-    teamB: "MI",
-    teamBFull: "Mumbai Indians",
+    oversA: '0.0',
     runsB: 0,
     wicketsB: 0,
-    oversB: "0.0",
-    venue: "MA Chidambaram Stadium, Chennai",
-    avgScore: 172,
-    pitchType: "Spin Grip • Slow Turn in Middle Overs",
-    weather: "31°C • Humid Evening",
-    paceHelp: 38,
-    tossNote: "Batting first preferred when surface slows down",
-    h2h: "MI 20 - 17 CSK",
-    xiA: ["R. Gaikwad (C)", "D. Conway", "R. Tripathi", "S. Dube", "R. Jadeja", "M. Dhoni", "S. Curran", "R. Ashwin", "N. Ahmad", "M. Pathirana", "K. Ahmed"],
-    xiB: ["R. Sharma", "R. Rickelton", "S. Yadav", "T. Varma", "H. Pandya (C)", "N. Dhir", "M. Santner", "D. Chahar", "J. Bumrah", "T. Boult", "K. Sharma"],
-    recentBalls: ["-", "-", "-", "-", "-", "-"],
-    commentary: [
-      { over: "PRE", text: "Pitch report indicates spin grip during overs 7 to 15." },
-      { over: "PRE", text: "Top-order anchors and spin all-rounders carry strong match value." }
-    ],
+    oversB: '0.0',
+    venue: 'MA Chidambaram Stadium, Chennai',
+    pitchType: 'Spin & Grip',
+    avgScore: '172',
+    ai: {
+      probA: 52,
+      probB: 48,
+      crowdA: 54,
+      projRange: '15Ov: ~128 | 20Ov: ~172',
+      sessionRange: '6Ov: 44-51 | 10Ov: 76-88',
+      momentum: 'Balanced'
+    },
     h2hPlayers: [
-      { name: "Ruturaj Gaikwad", role: "BAT", tag: "C", reason: "Reliable top-order run scorer at Chepauk" },
-      { name: "Ravindra Jadeja", role: "ALL", tag: "VC", reason: "4 spin overs plus dependable middle/lower-order runs" },
-      { name: "Jasprit Bumrah", role: "BOWL", tag: "", reason: "Consistent wicket-taker in powerplay and death phases" },
-      { name: "Suryakumar Yadav", role: "BAT", tag: "", reason: "High-impact middle-overs scorer" },
-      { name: "Matheesha Pathirana", role: "BOWL", tag: "", reason: "Death-over breakthrough specialist" }
+      { name: 'Ruturaj Gaikwad', role: 'Batter', tag: 'C', reason: 'Consistent top-order anchor on slow surfaces.' },
+      { name: 'Jasprit Bumrah', role: 'Bowler', tag: 'VC', reason: 'Economical spells across phases.' }
     ],
     glPlayers: [
-      { name: "Shivam Dube", role: "ALL", tag: "C", reason: "Strong middle-overs six-hitter against spin" },
-      { name: "Noor Ahmad", role: "BOWL", tag: "VC", reason: "Wrist-spin wicket potential on a turning track" },
-      { name: "Tilak Varma", role: "BAT", tag: "", reason: "Composed middle-order accumulator" },
-      { name: "Mitchell Santner", role: "ALL", tag: "", reason: "Economical left-arm spin plus handy batting" },
-      { name: "Deepak Chahar", role: "BOWL", tag: "", reason: "Early powerplay swing threat" }
+      { name: 'Ravindra Jadeja', role: 'All-Rounder', tag: 'GL C', reason: 'Strong spin control and middle-order value.' },
+      { name: 'Tilak Varma', role: 'Batter', tag: 'GL VC', reason: 'Effective against spin in middle overs.' }
+    ],
+    commentary: [
+      { over: 'PRE', text: 'Pitch surface shows grip for spinners as evening progresses.' }
     ]
   }
 ];
 
-function buildAIModel(m) {
-  const oversNum = parseFloat(m.oversA) || 0;
-  let probA = 54;
-
-  if (m.status === "LIVE" && oversNum > 0) {
-    const crr = m.runsA / oversNum;
-    const rateDiff = (crr - 8.2) * 4.0;
-    const wicketImpact = m.wicketsA * 3.5;
-    probA = Math.round(52 + rateDiff - wicketImpact);
-    probA = Math.max(10, Math.min(90, probA));
+function parseScoreString(scoreStr) {
+  if (!scoreStr || typeof scoreStr !== 'string') {
+    return { runs: 0, wickets: 0, overs: '0.0' };
   }
-
-  const crr = oversNum > 0 ? (m.runsA / oversNum).toFixed(2) : "8.60";
-  const projCenter = oversNum > 0
-    ? Math.round((m.runsA / oversNum) * 20 - m.wicketsA * 1.5)
-    : m.avgScore;
-  const projLow = Math.max(130, projCenter - 4);
-  const projHigh = Math.max(140, projCenter + 5);
-  const sessionLow = Math.max(32, Math.round(projCenter * 0.27));
-  const sessionHigh = Math.max(40, Math.round(projCenter * 0.32));
-
-  let momentum = `Balanced (${m.teamA} vs ${m.teamB})`;
-  if (probA >= 62) momentum = `${m.teamA} Ahead (+${probA - 50} pts)`;
-  else if (probA <= 42) momentum = `${m.teamB} Ahead (+${50 - probA} pts)`;
-
-  const crowdA = Math.max(15, Math.min(85, probA + (probA >= 50 ? 3 : -3)));
-
+  const match = scoreStr.match(/(\d+)\s*\/\s*(\d+)\s*(?:\(([^)]+)\))?/);
+  if (!match) {
+    const runsOnly = scoreStr.match(/(\d+)/);
+    return {
+      runs: runsOnly ? Number(runsOnly[1]) : 0,
+      wickets: 0,
+      overs: '0.0'
+    };
+  }
   return {
-    probA,
-    probB: 100 - probA,
-    crowdA,
-    crowdB: 100 - crowdA,
-    crr,
-    projRange: `${projLow} - ${projHigh}`,
-    sessionRange: `${sessionLow} - ${sessionHigh}`,
-    momentum,
-    paceSpin: `${m.paceHelp}% Pace / ${100 - m.paceHelp}% Spin`
+    runs: Number(match[1] || 0),
+    wickets: Number(match[2] || 0),
+    overs: match[3] ? String(match[3]).trim() : '0.0'
   };
 }
 
-async function syncExternalFeed() {
-  if (!CRICKET_API_URL || typeof fetch !== 'function') return;
-  try {
-    const res = await fetch(CRICKET_API_URL);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      matches = data;
+function oversToDecimal(oversStr) {
+  const parts = String(oversStr || '0').split('.');
+  const whole = Number(parts[0]) || 0;
+  const balls = Number(parts[1]) || 0;
+  return whole + balls / 6;
+}
+
+function shortTeamCode(name, fallback) {
+  if (!name) return fallback;
+  const clean = String(name).trim();
+  const parenMatch = clean.match(/\(([A-Za-z0-9]{2,5})\)/);
+  if (parenMatch) return parenMatch[1].toUpperCase();
+  const words = clean.replace(/[^A-Za-z0-9\s]/g, '').trim().split(/\s+/);
+  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
+  return words
+    .slice(0, 4)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+}
+
+function clampPercent(val, fallback) {
+  const num = Number(val);
+  if (Number.isNaN(num)) return fallback;
+  return Math.max(8, Math.min(92, Math.round(num)));
+}
+
+function computeAnalytics(runs, wickets, oversStr, isLive) {
+  const ovDec = oversToDecimal(oversStr);
+  if (!isLive || ovDec <= 0.1) {
+    return {
+      probA: 52,
+      probB: 48,
+      crowdA: 54,
+      projRange: '15Ov: ~128 | 20Ov: ~172',
+      sessionRange: '6Ov: 44-51 | 10Ov: 76-88',
+      momentum: 'Pre-Match / Balanced'
+    };
+  }
+
+  const crr = runs / ovDec;
+  const proj15 = Math.round(crr * 15);
+  const proj20 = Math.round(crr * 20);
+  const sess6Min = Math.max(20, Math.round(crr * 6 - 5));
+  const sess6Max = Math.max(sess6Min + 6, Math.round(crr * 6 + 6));
+  const sess10Min = Math.max(35, Math.round(crr * 10 - 8));
+  const sess10Max = Math.max(sess10Min + 8, Math.round(crr * 10 + 9));
+
+  const probA = clampPercent(50 + (crr - 7.5) * 4 - wickets * 2.2, 50);
+  const probB = 100 - probA;
+
+  return {
+    probA,
+    probB,
+    crowdA: clampPercent(probA - 3, 52),
+    projRange: `15Ov: ~${proj15} | 20Ov: ~${proj20}`,
+    sessionRange: `6Ov: ${sess6Min}-${sess6Max} | 10Ov: ${sess10Min}-${sess10Max}`,
+    momentum: `CRR ${crr.toFixed(2)} • ${wickets} Wkts Down`
+  };
+}
+
+function normalizeMatchItem(item, index, sourceTag) {
+  const base = fallbackMatches[index % fallbackMatches.length];
+
+  const rawTeamA = item?.t1 || item?.teamA || item?.teams?.[0] || base.teamA;
+  const rawTeamB = item?.t2 || item?.teamB || item?.teams?.[1] || base.teamB;
+
+  const teamA = shortTeamCode(rawTeamA, base.teamA);
+  const teamB = shortTeamCode(rawTeamB, base.teamB);
+
+  let parsedA = { runs: 0, wickets: 0, overs: '0.0' };
+  let parsedB = { runs: 0, wickets: 0, overs: '0.0' };
+
+  if (Array.isArray(item?.score) && item.score.length > 0) {
+    parsedA = {
+      runs: Number(item.score[0]?.r ?? 0),
+      wickets: Number(item.score[0]?.w ?? 0),
+      overs: String(item.score[0]?.o ?? '0.0')
+    };
+    if (item.score[1]) {
+      parsedB = {
+        runs: Number(item.score[1]?.r ?? 0),
+        wickets: Number(item.score[1]?.w ?? 0),
+        overs: String(item.score[1]?.o ?? '0.0')
+      };
     }
-  } catch (err) {
-    // Keep clean local data if external API is not configured
+  } else {
+    parsedA = parseScoreString(item?.t1s || item?.scoreA || '');
+    parsedB = parseScoreString(item?.t2s || item?.scoreB || '');
+  }
+
+  const statusText = String(item?.status || item?.ms || '').toLowerCase();
+  const isUpcoming =
+    item?.matchStarted === false ||
+    statusText.includes('not started') ||
+    statusText.includes('upcoming');
+  const status = isUpcoming ? 'UPCOMING' : 'LIVE';
+
+  const analytics = computeAnalytics(parsedA.runs, parsedA.wickets, parsedA.overs, status === 'LIVE');
+
+  const latestBallNote = item?.status
+    ? `${parsedA.overs || 'Live'}: ${item.status}`
+    : `${parsedA.overs || 'Live'}: ${teamA} ${parsedA.runs}/${parsedA.wickets}.`;
+
+  return {
+    id: String(item?.id || `live-match-${index + 1}`),
+    series: String(item?.series || item?.name || base.series),
+    matchTitle: String(item?.name || `${teamA} vs ${teamB}`),
+    status,
+    timeLabel: `${status} • ${sourceTag}`,
+    teamA,
+    teamB,
+    runsA: parsedA.runs,
+    wicketsA: parsedA.wickets,
+    oversA: parsedA.overs,
+    runsB: parsedB.runs,
+    wicketsB: parsedB.wickets,
+    oversB: parsedB.overs,
+    venue: String(item?.venue || base.venue),
+    pitchType: base.pitchType,
+    avgScore: base.avgScore,
+    ai: analytics,
+    h2hPlayers: base.h2hPlayers,
+    glPlayers: base.glPlayers,
+    commentary: [
+      { over: parsedA.overs || 'LIVE', text: latestBallNote },
+      ...base.commentary
+    ]
+  };
+}
+
+async function fetchFromUrl(url, sourceTag) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5500);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' }
+    });
+    if (!res.ok) return null;
+
+    const payload = await res.json();
+    const list = Array.isArray(payload?.data)
+      ? payload.data
+      : Array.isArray(payload)
+      ? payload
+      : payload?.matches;
+
+    if (!Array.isArray(list) || list.length === 0) return null;
+
+    const sorted = [...list].sort((a, b) => {
+      const aLive = a?.matchStarted === true && a?.matchEnded === false ? 1 : 0;
+      const bLive = b?.matchStarted === true && b?.matchEnded === false ? 1 : 0;
+      return bLive - aLive;
+    });
+
+    return sorted.slice(0, 8).map((item, idx) => normalizeMatchItem(item, idx, sourceTag));
+  } catch (e) {
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
-setInterval(syncExternalFeed, 15000);
+async function fetchLiveMatches() {
+  const candidates = [];
 
-app.get('/api/matches', (req, res) => {
-  res.json(matches.map(m => ({ ...m, ai: buildAIModel(m) })));
+  if (CUSTOM_API_URL) {
+    const customWithKey = CUSTOM_API_URL.includes('apikey=')
+      ? CUSTOM_API_URL
+      : `${CUSTOM_API_URL}${CUSTOM_API_URL.includes('?') ? '&' : '?'}apikey=${encodeURIComponent(CRICKET_API_KEY)}`;
+    candidates.push({ url: customWithKey, tag: 'Custom API' });
+  }
+
+  if (CRICKET_API_KEY) {
+    const keyEnc = encodeURIComponent(CRICKET_API_KEY);
+    candidates.push({
+      url: `https://api.cricapi.com/v1/cricScore?apikey=${keyEnc}&offset=0`,
+      tag: 'CricketData Live'
+    });
+    candidates.push({
+      url: `https://api.cricapi.com/v1/currentMatches?apikey=${keyEnc}&offset=0`,
+      tag: 'CricketData Current'
+    });
+  }
+
+  for (const c of candidates) {
+    const result = await fetchFromUrl(c.url, c.tag);
+    if (Array.isArray(result) && result.length > 0) {
+      return result;
+    }
+  }
+
+  return fallbackMatches;
+}
+
+app.get('/api/matches', async (req, res) => {
+  const data = await fetchLiveMatches();
+  res.json(data);
 });
 
-app.post('/api/chat', (req, res) => {
+app.post('/api/chat', async (req, res) => {
   const { matchId, question } = req.body || {};
-  const m = matches.find(x => x.id === Number(matchId)) || matches[0];
-  const ai = buildAIModel(m);
-  const q = String(question || "").toLowerCase();
+  const matches = await fetchLiveMatches();
+  const match = matches.find((m) => m.id === matchId) || matches[0];
+  const qText = String(question || 'match outlook').trim();
 
-  let reply = "";
-  if (q.includes("pitch") || q.includes("venue") || q.includes("weather") || q.includes("toss")) {
-    reply = `${m.venue}: Pitch "${m.pitchType}", Avg 1st Inn ${m.avgScore}, Split ${ai.paceSpin}, Weather ${m.weather}. ${m.tossNote}.`;
-  } else if (q.includes("c & vc") || q.includes("captain") || q.includes("vc") || q.includes("fantasy") || q.includes("team")) {
-    reply = `H2H Picks: ${m.h2hPlayers[0].name} (C) & ${m.h2hPlayers[1].name} (VC). Grand League Differential: ${m.glPlayers[0].name} (${m.glPlayers[0].reason}).`;
-  } else if (q.includes("win") || q.includes("prob") || q.includes("score") || q.includes("session") || q.includes("jeet")) {
-    reply = `AI Signals: ${m.teamA} ${ai.probA}% vs ${m.teamB} ${ai.probB}% | Projected Score: ${ai.projRange} | Next Phase: ${ai.sessionRange} | ${ai.momentum}.`;
-  } else {
-    reply = `${m.teamA} vs ${m.teamB} (${m.venue}): Win split ${ai.probA}% - ${ai.probB}%, projected ${ai.projRange}, top C pick ${m.h2hPlayers[0].name}.`;
-  }
+  const topH2H = match.h2hPlayers?.[0]?.name || 'Key Batter';
+  const topGL = match.glPlayers?.[0]?.name || 'Differential Pick';
+
+  const reply =
+    `${match.teamA} vs ${match.teamB} (${qText}): ` +
+    `Win model reads ${match.teamA} ${match.ai.probA}% vs ${match.teamB} ${match.ai.probB}%. ` +
+    `${match.ai.projRange} | ${match.ai.sessionRange}. ` +
+    `H2H focus: ${topH2H}; GL differential: ${topGL}. (Analytics only)`;
 
   res.json({ reply });
 });
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`CricNawab-AI running on http://localhost:${PORT}`);
+  console.log(`CricNawab-AI running on port ${PORT}`);
 });
