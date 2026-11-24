@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricNawab AI • Live Cricket & Voice</title>
+  <title>CricNawab AI • Live Score, Odds & Voice</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { background: #f1f5f9; color: #0f172a; padding-bottom: 82px; }
@@ -45,7 +45,7 @@
     .sub-source { font-size: 11px; color: #64748b; margin-top: 3px; }
     .score-row {
       display: flex; align-items: center; justify-content: space-between;
-      margin: 16px 0 12px; text-align: center;
+      margin: 14px 0 10px; text-align: center;
     }
     .team-box { width: 72px; }
     .team-circle {
@@ -57,6 +57,14 @@
     .team-name { font-size: 13px; font-weight: 700; }
     .score-mid { font-size: 15px; font-weight: 800; color: #0f172a; }
     .score-mid span { color: #ef4444; margin: 0 4px; font-size: 12px; }
+    .odds-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+      margin-top: 10px; background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 12px; padding: 8px;
+    }
+    .odd-box { text-align: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 4px; }
+    .odd-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+    .odd-val { font-size: 12px; color: #0f172a; font-weight: 800; margin-top: 2px; }
     .pill-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; align-items: center; }
     .mini-pill {
       flex: 1; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0;
@@ -82,7 +90,7 @@
       display: flex; justify-content: space-between; align-items: center;
     }
     .prob-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
-    .prob-bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .prob-bar { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
     .prob-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
     .strip-meta { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.45; }
     .ask-row { display: flex; gap: 8px; margin-top: 8px; }
@@ -121,7 +129,6 @@
       padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;
       margin-bottom: 8px; background: #f8fafc;
     }
-    /* Match Detail Modal when tapping a match card */
     .modal-backdrop {
       display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
       z-index: 50; padding: 14px; overflow-y: auto;
@@ -176,7 +183,7 @@
           <span>✦ Ask AI <span style="background:#dcfce7;color:#166534;padding:2px 7px;border-radius:999px;font-size:11px;">3 FREE</span></span>
         </div>
         <div class="ask-row">
-          <input id="askInput" class="ask-input" placeholder="Best C & VC picks" />
+          <input id="askInput" class="ask-input" placeholder="Best C & VC picks or match odds" />
           <button class="ask-btn" onclick="askAi()">Ask</button>
         </div>
         <div id="askReply" class="ask-reply"></div>
@@ -211,7 +218,7 @@
       <div class="card">
         <div class="card-title"><span>👑 CricNawab AI Pro Pass</span></div>
         <p style="font-size:13px;color:#475569;margin-bottom:12px;">
-          Unlock full AI win projections, session ranges, and H2H/GL expert picks.
+          Unlock full AI win projections, live odds/session ranges, and H2H/GL expert picks.
         </p>
         <div class="intel-row"><span class="intel-label">Match Day Pass</span><span class="intel-val">₹99</span></div>
         <div class="intel-row"><span class="intel-label">Monthly Pro Pass</span><span class="intel-val">₹249</span></div>
@@ -238,6 +245,54 @@
     let activeIndex = 0;
     let currentFilter = 'LIVE';
 
+    function calcDecimalOdds(prob) {
+      const p = Math.max(8, Math.min(92, Number(prob) || 50));
+      return (100 / p).toFixed(2);
+    }
+
+    function enrichMatch(raw) {
+      const m = Object.assign({}, raw);
+      m.teamA = m.teamA || 'TEAM A';
+      m.teamB = m.teamB || 'TEAM B';
+      m.runsA = m.runsA ?? 0;
+      m.wicketsA = m.wicketsA ?? 0;
+      m.oversA = m.oversA ?? '0.0';
+      m.runsB = m.runsB ?? 0;
+      m.wicketsB = m.wicketsB ?? 0;
+      m.oversB = m.oversB ?? '0.0';
+      m.ai = Object.assign({
+        probA: 52,
+        probB: 48,
+        crowdA: 54,
+        projRange: '15Ov: ~128 | 20Ov: ~172',
+        sessionRange: '6Ov: 44-51 | 10Ov: 76-88',
+        momentum: 'Live / Competitive'
+      }, m.ai || {});
+
+      const oddA = m.odds?.teamA || calcDecimalOdds(m.ai.probA);
+      const oddB = m.odds?.teamB || calcDecimalOdds(m.ai.probB);
+      const favTeam = Number(m.ai.probA) >= Number(m.ai.probB) ? m.teamA : m.teamB;
+      const favOdd = Number(m.ai.probA) >= Number(m.ai.probB) ? oddA : oddB;
+
+      m.computedOdds = {
+        oddA,
+        oddB,
+        favLabel: `${favTeam} @ ${favOdd}`,
+        pairLabel: `${m.teamA} ${oddA} • ${m.teamB} ${oddB}`,
+        sessionLabel: m.odds?.session || m.ai.sessionRange
+      };
+
+      if (!Array.isArray(m.commentary) || m.commentary.length === 0) {
+        m.commentary = [
+          {
+            over: String(m.oversA || 'LIVE'),
+            text: `${m.teamA} ${m.runsA}/${m.wicketsA} (${m.oversA}) vs ${m.teamB} ${m.runsB}/${m.wicketsB} (${m.oversB}). Odds: ${m.computedOdds.pairLabel}.`
+          }
+        ];
+      }
+      return m;
+    }
+
     function speakText(text) {
       if (!('speechSynthesis' in window)) {
         alert('Voice speech is not supported in this browser.');
@@ -258,7 +313,7 @@
       const m = getActiveMatch();
       if (!m) return;
       const latest = m.commentary?.[0]?.text || '';
-      const spoken = `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB}. ${latest}`;
+      const spoken = `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB} ${m.runsB} for ${m.wicketsB}. Odds ${m.teamA} ${m.computedOdds.oddA}, ${m.teamB} ${m.computedOdds.oddB}. ${latest}`;
       speakText(spoken);
     }
 
@@ -319,7 +374,7 @@
         <div class="modal-head">
           <div>
             <div style="font-size:14px;font-weight:800;">${m.teamA} vs ${m.teamB} • ${m.status}</div>
-            <div style="font-size:11px;color:#64748b;">${m.series} • ${m.timeLabel}</div>
+            <div style="font-size:11px;color:#64748b;">${m.series} • ${m.timeLabel || 'Live Feed'}</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;">
             <button class="bol-btn" onclick="speakLatest()">🔊 Bol</button>
@@ -327,7 +382,7 @@
           </div>
         </div>
 
-        <div class="score-row" style="margin:10px 0 14px;">
+        <div class="score-row" style="margin:10px 0 12px;">
           <div class="team-box">
             <div class="team-circle">${m.teamA}</div>
             <div class="team-name">${m.teamA}</div>
@@ -341,14 +396,29 @@
           </div>
         </div>
 
-        <div class="intel-row"><span class="intel-label">Win Probability</span><span class="intel-val">${m.teamA} ${m.ai.probA}% • ${m.teamB} ${m.ai.probB}%</span></div>
+        <div class="odds-strip" style="margin-bottom:10px;">
+          <div class="odd-box">
+            <div class="odd-label">${m.teamA} Odds</div>
+            <div class="odd-val">${m.computedOdds.oddA}x (${m.ai.probA}%)</div>
+          </div>
+          <div class="odd-box">
+            <div class="odd-label">${m.teamB} Odds</div>
+            <div class="odd-val">${m.computedOdds.oddB}x (${m.ai.probB}%)</div>
+          </div>
+          <div class="odd-box">
+            <div class="odd-label">Fav Rate</div>
+            <div class="odd-val">${m.computedOdds.favLabel}</div>
+          </div>
+        </div>
+
+        <div class="intel-row"><span class="intel-label">Match Odds</span><span class="intel-val">${m.computedOdds.pairLabel}</span></div>
+        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.computedOdds.sessionLabel}</span></div>
         <div class="intel-row"><span class="intel-label">Projected Score</span><span class="intel-val">${m.ai.projRange}</span></div>
-        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.ai.sessionRange}</span></div>
         <div class="intel-row"><span class="intel-label">Momentum</span><span class="intel-val">${m.ai.momentum}</span></div>
-        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue}</span></div>
+        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue || 'International Venue'}</span></div>
 
         <div style="margin-top:12px;">
-          <div style="font-size:13px;font-weight:800;margin-bottom:8px;">🎙️ Live Updates (Tap 🔊 Bol to Hear)</div>
+          <div style="font-size:13px;font-weight:800;margin-bottom:8px;">🎙️ Live Updates & Odds Feed</div>
           ${commHtml}
         </div>
       `;
@@ -365,7 +435,7 @@
             <div class="series-title">${m.series} • ${m.teamA} vs ${m.teamB}</div>
             <div class="live-badge ${isUp ? 'upcoming' : ''}">${m.status}</div>
           </div>
-          <div class="sub-source">${m.timeLabel}</div>
+          <div class="sub-source">${m.timeLabel || 'Live Cricket Feed'}</div>
           <div class="score-row">
             <div class="team-box">
               <div class="team-circle">${m.teamA}</div>
@@ -379,13 +449,29 @@
               <div class="team-name">${m.teamB}</div>
             </div>
           </div>
+
+          <div class="odds-strip">
+            <div class="odd-box">
+              <div class="odd-label">${m.teamA} Win</div>
+              <div class="odd-val">${m.ai.probA}% (${m.computedOdds.oddA}x)</div>
+            </div>
+            <div class="odd-box">
+              <div class="odd-label">${m.teamB} Win</div>
+              <div class="odd-val">${m.ai.probB}% (${m.computedOdds.oddB}x)</div>
+            </div>
+            <div class="odd-box">
+              <div class="odd-label">Session</div>
+              <div class="odd-val">${String(m.computedOdds.sessionLabel).split('|')[0].trim()}</div>
+            </div>
+          </div>
+
           <div class="pill-row">
-            <div class="mini-pill">✦ AI ${m.ai.probA}%</div>
+            <div class="mini-pill">Fav: ${m.computedOdds.favLabel}</div>
             <div class="mini-pill">Fan ${m.ai.crowdA}%</div>
             <button class="bol-btn" onclick="event.stopPropagation(); speakLatest()">🔊 Bol</button>
           </div>
-          <div class="venue-line">${m.venue} • ${m.ai.momentum}</div>
-          <button class="open-cta" onclick="event.stopPropagation(); openMatchModal()">🏏 Open Full Live Match & Voice</button>
+          <div class="venue-line">${m.venue || 'International Venue'} • ${m.ai.momentum}</div>
+          <button class="open-cta" onclick="event.stopPropagation(); openMatchModal()">🏏 Open Full Scorecard, Odds & Voice</button>
         </div>
       `;
 
@@ -394,10 +480,10 @@
         .join('');
 
       document.getElementById('homeProbCard').innerHTML = `
-        <div class="card-title"><span>✦ AI Win Probability</span><span style="font-size:11px;color:#64748b;">Live Model</span></div>
-        <div class="prob-labels"><span>${m.teamA} ${m.ai.probA}%</span><span>${m.teamB} ${m.ai.probB}%</span></div>
+        <div class="card-title"><span>✦ Live Odds & Win Probability</span><span style="font-size:11px;color:#64748b;">${m.computedOdds.pairLabel}</span></div>
+        <div class="prob-labels"><span>${m.teamA} ${m.ai.probA}% (${m.computedOdds.oddA}x)</span><span>${m.teamB} ${m.ai.probB}% (${m.computedOdds.oddB}x)</span></div>
         <div class="prob-bar"><div class="prob-fill" style="width:${m.ai.probA}%"></div></div>
-        <div class="strip-meta">${m.ai.projRange} • Session: ${m.ai.sessionRange}</div>
+        <div class="strip-meta">${m.ai.projRange} • Session: ${m.computedOdds.sessionLabel}</div>
       `;
 
       document.getElementById('matchTabContent').innerHTML = `
@@ -428,12 +514,12 @@
       const replyBox = document.getElementById('askReply');
       if (!m) return;
       replyBox.style.display = 'block';
-      replyBox.textContent = 'Analyzing live match data...';
+      replyBox.textContent = 'Analyzing live match score & odds...';
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ matchId: m.id, question: input.value || 'Best C & VC picks' })
+          body: JSON.stringify({ matchId: m.id, question: input.value || 'Best C & VC picks and match odds' })
         });
         const data = await res.json();
         replyBox.textContent = data.reply;
@@ -447,7 +533,7 @@
         const res = await fetch('/api/matches');
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          allMatches = data;
+          allMatches = data.map(enrichMatch);
           applyFilter();
         }
       } catch (e) {
@@ -456,7 +542,7 @@
     }
 
     loadMatches();
-    setInterval(loadMatches, 60000);
+    setInterval(loadMatches, 30000);
   </script>
 </body>
 </html>
