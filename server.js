@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const CRICKET_API_KEY = '9882ff6c-c45a-4e47-a5b5-7178d63e1dbf';
+const CRICKET_API_KEY = process.env.CRICKET_API_KEY || '9882ff6c-c45a-4e47-a5b5-7178d63e1dbf';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -27,6 +27,11 @@ const fallbackMatches = [
     venue: 'Wankhede Stadium, Mumbai',
     pitchType: 'Batting Friendly',
     avgScore: '186',
+    odds: {
+      teamA: '1.56',
+      teamB: '2.78',
+      session: '6Ov: 48-55 | 10Ov: 82-94'
+    },
     ai: {
       probA: 64,
       probB: 36,
@@ -55,17 +60,19 @@ const fallbackMatches = [
 
 function parseScoreString(scoreStr) {
   if (!scoreStr || typeof scoreStr !== 'string') {
-    return { runs: 0, wickets: 0, overs: '0.0' };
+    return { runs: 0, wickets: 0, overs: '0.0', hasScore: false };
   }
   const match = scoreStr.match(/(\d+)\s*\/\s*(\d+)\s*(?:\(([^)]+)\))?/);
   if (!match) {
     const runsOnly = scoreStr.match(/(\d+)/);
-    return { runs: runsOnly ? Number(runsOnly[1]) : 0, wickets: 0, overs: '0.0' };
+    if (!runsOnly) return { runs: 0, wickets: 0, overs: '0.0', hasScore: false };
+    return { runs: Number(runsOnly[1]), wickets: 0, overs: '0.0', hasScore: true };
   }
   return {
     runs: Number(match[1] || 0),
     wickets: Number(match[2] || 0),
-    overs: match[3] ? String(match[3]).trim() : '0.0'
+    overs: match[3] ? String(match[3]).trim() : '0.0',
+    hasScore: true
   };
 }
 
@@ -90,16 +97,28 @@ function clampPercent(val, fallback) {
   return Math.max(8, Math.min(92, Math.round(num)));
 }
 
+function computeOddsFromProb(probA, probB, sessionRange) {
+  const oddA = (100 / Math.max(8, Math.min(92, probA))).toFixed(2);
+  const oddB = (100 / Math.max(8, Math.min(92, probB))).toFixed(2);
+  return {
+    teamA: oddA,
+    teamB: oddB,
+    session: sessionRange
+  };
+}
+
 function computeAnalytics(runs, wickets, oversStr, isLive) {
   const ovDec = oversToDecimal(oversStr);
   if (!isLive || ovDec <= 0.1) {
+    const sessionRange = '6Ov: 44-51 | 10Ov: 76-88';
     return {
       probA: 52,
       probB: 48,
       crowdA: 54,
       projRange: '15Ov: ~128 | 20Ov: ~172',
-      sessionRange: '6Ov: 44-51 | 10Ov: 76-88',
-      momentum: 'Pre-Match / Balanced'
+      sessionRange,
+      momentum: 'Pre-Match / Balanced',
+      odds: computeOddsFromProb(52, 48, sessionRange)
     };
   }
   const crr = runs / ovDec;
@@ -109,15 +128,18 @@ function computeAnalytics(runs, wickets, oversStr, isLive) {
   const sess6Max = Math.max(sess6Min + 6, Math.round(crr * 6 + 6));
   const sess10Min = Math.max(35, Math.round(crr * 10 - 8));
   const sess10Max = Math.max(sess10Min + 8, Math.round(crr * 10 + 9));
+  const sessionRange = `6Ov: ${sess6Min}-${sess6Max} | 10Ov: ${sess10Min}-${sess10Max}`;
   const probA = clampPercent(50 + (crr - 7.5) * 4 - wickets * 2.2, 50);
+  const probB = 100 - probA;
 
   return {
     probA,
-    probB: 100 - probA,
+    probB,
     crowdA: clampPercent(probA - 3, 52),
     projRange: `15Ov: ~${proj15} | 20Ov: ~${proj20}`,
-    sessionRange: `6Ov: ${sess6Min}-${sess6Max} | 10Ov: ${sess10Min}-${sess10Max}`,
-    momentum: `CRR ${crr.toFixed(2)} • ${wickets} Wkts Down`
+    sessionRange,
+    momentum: `CRR ${crr.toFixed(2)} • ${wickets} Wkts Down`,
+    odds: computeOddsFromProb(probA, probB, sessionRange)
   };
 }
 
@@ -128,20 +150,24 @@ function normalizeMatchItem(item, index, sourceTag) {
   const teamA = shortTeamCode(rawTeamA, base.teamA);
   const teamB = shortTeamCode(rawTeamB, base.teamB);
 
-  let parsedA = { runs: 0, wickets: 0, overs: '0.0' };
-  let parsedB = { runs: 0, wickets: 0, overs: '0.0' };
+  let parsedA = { runs: 0, wickets: 0, overs: '0.0', hasScore: false };
+  let parsedB = { runs: 0, wickets: 0, overs: '0.0', hasScore: false };
 
   if (Array.isArray(item?.score) && item.score.length > 0) {
+    const inn0 = item.score[0] || {};
     parsedA = {
-      runs: Number(item.score[0]?.r ?? 0),
-      wickets: Number(item.score[0]?.w ?? 0),
-      overs: String(item.score[0]?.o ?? '0.0')
+      runs: Number(inn0.r ?? 0),
+      wickets: Number(inn0.w ?? 0),
+      overs: String(inn0.o ?? '0.0'),
+      hasScore: inn0.r !== undefined || inn0.o !== undefined
     };
     if (item.score[1]) {
+      const inn1 = item.score[1] || {};
       parsedB = {
-        runs: Number(item.score[1]?.r ?? 0),
-        wickets: Number(item.score[1]?.w ?? 0),
-        overs: String(item.score[1]?.o ?? '0.0')
+        runs: Number(inn1.r ?? 0),
+        wickets: Number(inn1.w ?? 0),
+        overs: String(inn1.o ?? '0.0'),
+        hasScore: inn1.r !== undefined || inn1.o !== undefined
       };
     }
   } else {
@@ -150,15 +176,25 @@ function normalizeMatchItem(item, index, sourceTag) {
   }
 
   const statusText = String(item?.status || item?.ms || '').toLowerCase();
+  const isEnded =
+    item?.matchEnded === true ||
+    statusText.includes('won') ||
+    statusText.includes('tied') ||
+    statusText.includes('no result') ||
+    statusText.includes('abandoned') ||
+    statusText.includes('completed');
   const isUpcoming =
-    item?.matchStarted === false ||
-    statusText.includes('not started') ||
-    statusText.includes('upcoming');
-  const status = isUpcoming ? 'UPCOMING' : 'LIVE';
+    !isEnded &&
+    (item?.matchStarted === false ||
+      statusText.includes('not started') ||
+      statusText.includes('upcoming') ||
+      statusText.includes('starts at'));
+
+  const status = isEnded ? 'RESULT' : isUpcoming ? 'UPCOMING' : 'LIVE';
   const analytics = computeAnalytics(parsedA.runs, parsedA.wickets, parsedA.overs, status === 'LIVE');
   const latestBallNote = item?.status
     ? `${parsedA.overs || 'Live'}: ${item.status}`
-    : `${parsedA.overs || 'Live'}: ${teamA} ${parsedA.runs}/${parsedA.wickets}.`;
+    : `${parsedA.overs || 'Live'}: ${teamA} ${parsedA.runs}/${parsedA.wickets} vs ${teamB} ${parsedB.runs}/${parsedB.wickets}.`;
 
   return {
     id: String(item?.id || `live-match-${index + 1}`),
@@ -177,7 +213,15 @@ function normalizeMatchItem(item, index, sourceTag) {
     venue: String(item?.venue || base.venue),
     pitchType: base.pitchType,
     avgScore: base.avgScore,
-    ai: analytics,
+    odds: analytics.odds,
+    ai: {
+      probA: analytics.probA,
+      probB: analytics.probB,
+      crowdA: analytics.crowdA,
+      projRange: analytics.projRange,
+      sessionRange: analytics.sessionRange,
+      momentum: analytics.momentum
+    },
     h2hPlayers: base.h2hPlayers,
     glPlayers: base.glPlayers,
     commentary: [{ over: parsedA.overs || 'LIVE', text: latestBallNote }, ...base.commentary]
@@ -186,7 +230,7 @@ function normalizeMatchItem(item, index, sourceTag) {
 
 async function fetchFromUrl(url, sourceTag) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5500);
+  const timer = setTimeout(() => controller.abort(), 6000);
   try {
     const res = await fetch(url, { signal: controller.signal, headers: { Accept: 'application/json' } });
     if (!res.ok) return null;
@@ -200,7 +244,7 @@ async function fetchFromUrl(url, sourceTag) {
       return bLive - aLive;
     });
 
-    return sorted.slice(0, 8).map((item, idx) => normalizeMatchItem(item, idx, sourceTag));
+    return sorted.slice(0, 10).map((item, idx) => normalizeMatchItem(item, idx, sourceTag));
   } catch (e) {
     return null;
   } finally {
@@ -211,8 +255,8 @@ async function fetchFromUrl(url, sourceTag) {
 async function fetchLiveMatches() {
   const keyEnc = encodeURIComponent(CRICKET_API_KEY);
   const candidates = [
-    { url: `https://api.cricapi.com/v1/cricScore?apikey=${keyEnc}&offset=0`, tag: 'CricketData Live' },
-    { url: `https://api.cricapi.com/v1/currentMatches?apikey=${keyEnc}&offset=0`, tag: 'CricketData Current' }
+    { url: `https://api.cricapi.com/v1/currentMatches?apikey=${keyEnc}&offset=0`, tag: 'CricketData Current' },
+    { url: `https://api.cricapi.com/v1/cricScore?apikey=${keyEnc}&offset=0`, tag: 'CricketData Live' }
   ];
 
   for (const c of candidates) {
@@ -238,9 +282,10 @@ app.post('/api/chat', async (req, res) => {
   res.json({
     reply:
       `${match.teamA} vs ${match.teamB} (${qText}): ` +
-      `Win model reads ${match.teamA} ${match.ai.probA}% vs ${match.teamB} ${match.ai.probB}%. ` +
-      `${match.ai.projRange} | ${match.ai.sessionRange}. ` +
-      `H2H focus: ${topH2H}; GL differential: ${topGL}. (Analytics only)`
+      `Score ${match.teamA} ${match.runsA}/${match.wicketsA} (${match.oversA}) vs ${match.teamB} ${match.runsB}/${match.wicketsB} (${match.oversB}). ` +
+      `Odds ${match.teamA} ${match.odds?.teamA || '1.92'}x • ${match.teamB} ${match.odds?.teamB || '2.08'}x. ` +
+      `Win model ${match.teamA} ${match.ai.probA}% vs ${match.teamB} ${match.ai.probB}%. ` +
+      `H2H: ${topH2H}; GL: ${topGL}. (Analytics only)`
   });
 });
 
