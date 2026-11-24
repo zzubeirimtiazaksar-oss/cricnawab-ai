@@ -1,0 +1,12 @@
+{
+  "name": "cricnawab-ai",
+  "version": "1.0.0",
+  "description": "CricNawab-AI Cricket Predictions, Live Analytics, Fantasy & Pro Pass App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
