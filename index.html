@@ -12,7 +12,6 @@
       --ink: #0f172a;
       --muted: #64748b;
       --line: #e2e8f0;
-      --accent-green: #16a34a;
       --accent-neon: #4ade80;
       --red: #ef4444;
       --nav-bg: #080b11;
@@ -26,7 +25,7 @@
       max-width: 460px;
       margin: 0 auto;
       min-height: 100vh;
-      padding-bottom: 82px;
+      padding-bottom: 122px;
       box-shadow: 0 0 40px rgba(0,0,0,0.22);
     }
 
@@ -139,6 +138,7 @@
       font-size: 12.5px;
       font-weight: 700;
       color: #334155;
+      gap: 8px;
     }
     .live-badge-box {
       background: #ef4444;
@@ -148,6 +148,7 @@
       padding: 3px 8px;
       border-radius: 6px;
       letter-spacing: 0.4px;
+      flex-shrink: 0;
     }
     .live-badge-box.up { background: #2563eb; }
     .hm-time { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
@@ -169,7 +170,7 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 12px;
       border: 2px solid #e2e8f0;
       background: #f1f5f9;
       color: #0f172a;
@@ -179,7 +180,7 @@
     .t-code { font-size: 13px; font-weight: 800; color: #0f172a; }
 
     .score-center { text-align: center; flex: 1; }
-    .score-main { font-size: 14px; font-weight: 900; color: #0f172a; }
+    .score-main { font-size: 13.5px; font-weight: 900; color: #0f172a; }
     .score-main .vs-txt { color: var(--red); margin: 0 4px; font-size: 12px; }
 
     .picks-strip {
@@ -352,7 +353,7 @@
       font-size: 10px; font-weight: 800;
     }
     .upd-txt { font-size: 11px; color: var(--muted); }
-    .prob-nums { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+    .prob-nums { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 800; margin-bottom: 6px; }
     .prob-track { height: 10px; background: #dbeafe; border-radius: 999px; overflow: hidden; }
     .prob-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); transition: width 0.4s ease; }
     .prob-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
@@ -364,9 +365,40 @@
       padding: 13px;
       margin-bottom: 12px;
     }
-    .mini-box h4 { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
-    .p-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; gap: 8px; }
+    .mini-box-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+    .mini-box h4 { font-size: 13px; font-weight: 800; }
+    .voice-controls { display: flex; gap: 6px; }
+    .v-btn {
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .v-btn.on { background: #16a34a; }
+
+    .p-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12.5px; gap: 8px; }
     .p-row:last-child { border-bottom: none; }
+    .speak-ball-btn {
+      background: #dcfce7;
+      border: 1px solid #22c55e;
+      color: #14532d;
+      border-radius: 7px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
 
     .mode-pills { display: flex; gap: 6px; margin-bottom: 10px; }
     .m-pill {
@@ -375,6 +407,34 @@
       font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer;
     }
     .m-pill.active { background: #14532d; border-color: #16a34a; color: #fff; }
+
+    .bottom-odds-strip {
+      position: fixed;
+      bottom: 54px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 460px;
+      background: #111827;
+      color: #f8fafc;
+      border-top: 1px solid #334155;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      z-index: 48;
+      gap: 6px;
+    }
+    .odds-badge {
+      background: #1e293b;
+      color: #86efac;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
 
     .disc-note {
       font-size: 10.5px;
@@ -455,11 +515,9 @@
     </button>
   </header>
 
-  <div class="filter-strip">
+  <div class="filter-strip" id="filterStrip">
     <button class="f-chip" onclick="filterMatches('UPCOMING', this)">Upcoming</button>
     <button class="f-chip active" onclick="filterMatches('LIVE', this)"><span class="live-red-dot"></span> Live</button>
-    <button class="f-chip" onclick="selectMatchByIndex(0, this)">⚡ IND vs AUS</button>
-    <button class="f-chip" onclick="selectMatchByIndex(1, this)">⚡ CSK vs MI</button>
   </div>
 
   <!-- HOME VIEW -->
@@ -507,11 +565,6 @@
       <button class="join-btn" onclick="openModal('tgModal')">Join</button>
     </div>
 
-    <div class="dots-row" style="margin-top:-4px;margin-bottom:10px;">
-      <span class="dot active"></span>
-      <span class="dot"></span>
-    </div>
-
     <div class="ask-ai-card">
       <div class="ask-top">
         <div class="ask-brand">
@@ -528,20 +581,20 @@
       <div class="ai-reply-box" id="homeAiReply"></div>
     </div>
 
-    <div class="signals-bar">AI Signals</div>
+    <div class="signals-bar">AI Signals & Odds</div>
     <div class="prob-card">
       <div class="prob-head">
         <div class="prob-title">✦ AI Win Probability <span class="info-i">i</span></div>
         <div class="upd-txt" id="updAgoTxt">Updated just now</div>
       </div>
       <div class="prob-nums">
-        <span id="probTextA">IND 54%</span>
-        <span id="probTextB">AUS 46%</span>
+        <span id="probTextA">IND 64%</span>
+        <span id="probTextB">AUS 36%</span>
       </div>
       <div class="prob-track">
-        <div class="prob-fill" id="probMeterFill" style="width: 54%;"></div>
+        <div class="prob-fill" id="probMeterFill" style="width: 64%;"></div>
       </div>
-      <div class="prob-sub" id="signalsSummaryLine">Projected: -- • Session: -- • Trend: --</div>
+      <div class="prob-sub" id="signalsSummaryLine">Projected: -- • Session: -- • Odds: --</div>
     </div>
 
     <div class="disc-note">
@@ -552,12 +605,13 @@
   <!-- MATCH VIEW -->
   <section class="view-section" id="view-match">
     <div class="mini-box">
-      <h4>Match Scorecard & Pitch Intel</h4>
+      <h4>Match Scorecard, Odds & Pitch Intel</h4>
       <div class="p-row"><span>Venue</span><strong id="mVenue">--</strong></div>
       <div class="p-row"><span>Pitch Type</span><strong id="mPitch">--</strong></div>
       <div class="p-row"><span>Avg 1st Innings</span><strong id="mAvg">--</strong></div>
       <div class="p-row"><span>Projected Score</span><strong id="mProj">--</strong></div>
       <div class="p-row"><span>Session Range</span><strong id="mSess">--</strong></div>
+      <div class="p-row"><span>Model Odds</span><strong id="mOdds">--</strong></div>
       <div class="p-row"><span>Momentum</span><strong id="mMom">--</strong></div>
     </div>
   </section>
@@ -577,7 +631,13 @@
   <!-- FEED VIEW -->
   <section class="view-section" id="view-feed">
     <div class="mini-box">
-      <h4>Match Commentary Feed</h4>
+      <div class="mini-box-head">
+        <h4>Ball-by-Ball Voice Commentary</h4>
+        <div class="voice-controls">
+          <button class="v-btn on" id="autoVoiceBtn" onclick="toggleAutoVoice()">Auto Voice: ON</button>
+          <button class="v-btn" onclick="speakLatestBall()">🔊 Latest</button>
+        </div>
+      </div>
       <div id="feedCommList"></div>
     </div>
   </section>
@@ -588,10 +648,18 @@
       <h4>CricNawab-AI Account & Pro Status</h4>
       <div class="p-row"><span>Plan Status</span><strong id="profPlanTxt">Free Tier</strong></div>
       <div class="p-row"><span>Free AI Questions Left</span><strong id="profQuotaTxt">3</strong></div>
+      <div class="p-row"><span>Ball Voice Announcer</span><strong id="profVoiceTxt">Enabled</strong></div>
       <div class="p-row"><span>Disclaimer</span><span>Analytics Only</span></div>
       <button class="btn-dark" style="width:100%;margin-top:10px;" onclick="openModal('proModal')">Manage AI Pro Pass</button>
     </div>
   </section>
+
+  <!-- BOTTOM ODDS & MODEL STRIP -->
+  <div class="bottom-odds-strip" id="bottomOddsStrip">
+    <span id="oddsTeamsTxt">IND vs AUS</span>
+    <span class="odds-badge" id="oddsRatesTxt">Odds: --</span>
+    <span id="oddsSessionTxt">Sess: --</span>
+  </div>
 
   <!-- MODALS -->
   <div class="modal-wrap" id="proModal">
@@ -613,7 +681,7 @@
   <div class="modal-wrap" id="inboxModal">
     <div class="modal-panel">
       <h3 style="font-size:15px;margin-bottom:8px;">Match Alerts & Updates</h3>
-      <div class="plan-row"><div><strong>AI Signals Ready</strong><div style="font-size:11px;color:#64748b;">Match probabilities, pitch notes, and C/VC picks loaded.</div></div></div>
+      <div class="plan-row"><div><strong>AI Signals Ready</strong><div style="font-size:11px;color:#64748b;">Ball voice commentary, odds estimates, and C/VC picks loaded.</div></div></div>
       <button class="btn-dark" style="width:100%;" onclick="closeModal('inboxModal')">Done</button>
     </div>
   </div>
@@ -628,8 +696,8 @@
 
   <div class="modal-wrap" id="helpModal">
     <div class="modal-panel">
-      <h3 style="font-size:15px;margin-bottom:6px;">How Ask AI Works</h3>
-      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Free users get 3 AI questions; Pro unlocks unlimited questions and Grand League picks.</p>
+      <h3 style="font-size:15px;margin-bottom:6px;">How Ask AI & Ball Voice Work</h3>
+      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Free users get 3 AI questions; Pro unlocks unlimited questions and Grand League picks. In FEED, tap any ball to hear it spoken aloud.</p>
       <button class="btn-dark" style="width:100%;" onclick="closeModal('helpModal')">Close</button>
     </div>
   </div>
@@ -648,14 +716,75 @@
     let currentFantasyMode = "H2H";
     let isPro = false;
     let freeQuestionsLeft = 3;
+    let autoVoiceEnabled = true;
+    let lastSpokenBallKey = "";
+
+    function probToDecimalOdds(pct) {
+      const clean = Math.max(8, Math.min(92, Number(pct) || 50));
+      return (100 / clean).toFixed(2);
+    }
+
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "en-IN";
+        utter.rate = 1.02;
+        window.speechSynthesis.speak(utter);
+      } catch (e) {}
+    }
+
+    function speakBallItem(over, text) {
+      speakText(`Over ${over}: ${text}`);
+    }
+
+    function speakLatestBall() {
+      const m = matchesData[currentIdx];
+      const topBall = m?.commentary?.[0];
+      if (!topBall) return;
+      speakBallItem(topBall.over, topBall.text);
+    }
+
+    function toggleAutoVoice() {
+      autoVoiceEnabled = !autoVoiceEnabled;
+      const btn = document.getElementById("autoVoiceBtn");
+      btn.innerText = `Auto Voice: ${autoVoiceEnabled ? "ON" : "OFF"}`;
+      btn.classList.toggle("on", autoVoiceEnabled);
+      document.getElementById("profVoiceTxt").innerText = autoVoiceEnabled ? "Enabled" : "Muted";
+    }
 
     async function loadData() {
       try {
-        const res = await fetch('/api/matches');
+        const res = await fetch('/api/matches', { cache: 'no-store' });
         if (!res.ok) return;
         matchesData = await res.json();
+        if (currentIdx >= matchesData.length) currentIdx = 0;
         renderAll();
+
+        const m = matchesData[currentIdx];
+        const topBall = m?.commentary?.[0];
+        if (m && topBall && autoVoiceEnabled) {
+          const key = `${m.id}-${topBall.over}-${topBall.text}`;
+          if (key !== lastSpokenBallKey) {
+            lastSpokenBallKey = key;
+            speakBallItem(topBall.over, topBall.text);
+          }
+        }
       } catch (e) {}
+    }
+
+    function renderFilterChips() {
+      const strip = document.getElementById("filterStrip");
+      const matchChips = matchesData.slice(0, 4).map((m, idx) => `
+        <button class="f-chip ${idx === currentIdx ? 'active' : ''}" onclick="selectMatchByIndex(${idx}, this)">⚡ ${m.teamA} vs ${m.teamB}</button>
+      `).join("");
+
+      strip.innerHTML = `
+        <button class="f-chip" onclick="filterMatches('UPCOMING', this)">Upcoming</button>
+        <button class="f-chip" onclick="filterMatches('LIVE', this)"><span class="live-red-dot"></span> Live</button>
+        ${matchChips}
+      `;
     }
 
     function renderDots() {
@@ -701,8 +830,12 @@
       const m = matchesData[currentIdx];
       if (!m) return;
 
+      renderFilterChips();
       renderDots();
       renderProUI();
+
+      const oddsA = probToDecimalOdds(m.ai.probA);
+      const oddsB = probToDecimalOdds(m.ai.probB);
 
       document.getElementById("hmSeries").innerText = `${m.series} • ${m.matchTitle}`;
       const badge = document.getElementById("hmStatusBadge");
@@ -722,25 +855,35 @@
       document.getElementById("fanPercentPill").innerText = `Fan ${m.ai.crowdA}%`;
       document.getElementById("hmStatusNote").innerText = `${m.venue} • ${m.ai.momentum}`;
 
-      document.getElementById("probTextA").innerText = `${m.teamA} ${m.ai.probA}%`;
-      document.getElementById("probTextB").innerText = `${m.teamB} ${m.ai.probB}%`;
+      document.getElementById("probTextA").innerText = `${m.teamA} ${m.ai.probA}% (${oddsA})`;
+      document.getElementById("probTextB").innerText = `${m.teamB} ${m.ai.probB}% (${oddsB})`;
       document.getElementById("probMeterFill").style.width = `${m.ai.probA}%`;
       document.getElementById("updAgoTxt").innerText = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       document.getElementById("signalsSummaryLine").innerText =
-        `Proj: ${m.ai.projRange} • Session: ${m.ai.sessionRange} • Crowd: ${m.teamA} ${m.ai.crowdA}%`;
+        `Proj: ${m.ai.projRange} • Session: ${m.ai.sessionRange} • Odds: ${m.teamA} ${oddsA} | ${m.teamB} ${oddsB}`;
 
       document.getElementById("mVenue").innerText = m.venue;
       document.getElementById("mPitch").innerText = m.pitchType;
       document.getElementById("mAvg").innerText = m.avgScore;
       document.getElementById("mProj").innerText = m.ai.projRange;
       document.getElementById("mSess").innerText = m.ai.sessionRange;
+      document.getElementById("mOdds").innerText = `${m.teamA} ${oddsA} • ${m.teamB} ${oddsB}`;
       document.getElementById("mMom").innerText = m.ai.momentum;
+
+      document.getElementById("oddsTeamsTxt").innerText = `${m.teamA} vs ${m.teamB}`;
+      document.getElementById("oddsRatesTxt").innerText = `Odds: ${m.teamA} ${oddsA} / ${m.teamB} ${oddsB}`;
+      document.getElementById("oddsSessionTxt").innerText = `Sess: ${m.ai.sessionRange}`;
 
       renderFantasyList();
 
-      document.getElementById("feedCommList").innerHTML = m.commentary.map(c => `
-        <div class="p-row"><span><strong>${c.over}</strong> — ${c.text}</span></div>
-      `).join("");
+      document.getElementById("feedCommList").innerHTML = m.commentary.map((c) => `
+        <div class="p-row">
+          <span><strong>${c.over}</strong> — ${c.text}</span>
+          <button class="speak-ball-btn" onclick="speakBallItem('${encodeURIComponent(c.over)}', '${encodeURIComponent(c.text)}')">🔊 Bol</button>
+        </div>
+      `).join("").replace(/speakBallItem\('([^']*)',\s*'([^']*)'\)/g, (_, a, b) =>
+        `speakBallItem(${JSON.stringify(decodeURIComponent(a))}, ${JSON.stringify(decodeURIComponent(b))})`
+      );
     }
 
     function handleAiPill() {
@@ -751,7 +894,7 @@
       const m = matchesData[currentIdx];
       const box = document.getElementById("homeAiReply");
       box.style.display = "block";
-      box.innerText = `Pro AI Signal (${m.teamA} vs ${m.teamB}): ${m.teamA} ${m.ai.probA}% win edge, projected ${m.ai.projRange}, session ${m.ai.sessionRange}.`;
+      box.innerText = `Pro AI Signal (${m.teamA} vs ${m.teamB}): ${m.teamA} ${m.ai.probA}% win edge, ${m.ai.projRange}, ${m.ai.sessionRange}.`;
     }
 
     function handleExpertPill() {
