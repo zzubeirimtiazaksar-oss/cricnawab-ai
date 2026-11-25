@@ -3,322 +3,1009 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CricNawab AI • Live Score, Odds & Voice</title>
+  <title>CricNawab AI • Live Cricket & Signals</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: #f1f5f9; color: #0f172a; padding-bottom: 82px; }
+    :root {
+      --bg-page: #060b12;
+      --bg-surface: #0e1724;
+      --bg-elevated: #142235;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --border-accent: rgba(16, 185, 129, 0.45);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-emerald: #10b981;
+      --accent-emerald-bright: #34d399;
+      --accent-gold: #f59e0b;
+      --accent-danger: #ef4444;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg-page);
+      color: var(--text-primary);
+      padding-bottom: 84px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TOP BAR */
     .topbar {
-      background: #0f172a; color: #fff; padding: 12px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 30;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(6, 11, 18, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .pro-btn {
-      background: #14532d; color: #86efac; border: 1px solid #22c55e;
-      padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
+
+    .pro-pill {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #04130d;
+      border: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.2px;
     }
-    .brand { font-size: 20px; font-weight: 900; color: #34d399; letter-spacing: 0.5px; }
-    .voice-pill {
-      background: #1e293b; color: #f8fafc; border: 1px solid #334155;
-      padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer;
+
+    .pro-pill.unlocked {
+      background: linear-gradient(135deg, #d97706, #fbbf24);
+      color: #181002;
     }
-    .chips {
-      display: flex; gap: 8px; overflow-x: auto; padding: 10px 14px;
-      background: #fff; border-bottom: 1px solid #e2e8f0;
+
+    .brand-logo {
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #34d399, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* FILTER CHIPS */
+    .chips-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      scrollbar-width: none;
+    }
+    .chips-bar::-webkit-scrollbar { display: none; }
+
     .chip {
-      padding: 6px 14px; border-radius: 999px; border: 1px solid #cbd5e1;
-      background: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
     }
-    .chip.active { border-color: #0f172a; background: #f8fafc; }
-    .container { max-width: 480px; margin: 0 auto; padding: 12px; }
+
+    .chip.active {
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--accent-emerald-bright);
+      border-color: var(--border-accent);
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px 14px;
+    }
+
+    /* HERO MATCH CARD */
     .hero-card {
-      background: #fff; border: 1.5px solid #fecaca; border-radius: 16px;
-      padding: 14px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05); cursor: pointer;
+      background: linear-gradient(160deg, #111d2e 0%, #0b1320 100%);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
     }
-    .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .series-title { font-size: 13px; font-weight: 800; color: #1e293b; }
-    .live-badge {
-      background: #ef4444; color: #fff; font-size: 11px; font-weight: 800;
-      padding: 3px 8px; border-radius: 6px; text-transform: uppercase;
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
     }
-    .live-badge.upcoming { background: #2563eb; }
-    .sub-source { font-size: 11px; color: #64748b; margin-top: 3px; }
-    .score-row {
-      display: flex; align-items: center; justify-content: space-between;
-      margin: 14px 0 10px; text-align: center;
+
+    .series-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-primary);
     }
-    .team-box { width: 72px; }
-    .team-circle {
-      width: 48px; height: 48px; border-radius: 50%; margin: 0 auto 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 13px; border: 2px solid #16a34a; color: #15803d; background: #f0fdf4;
+
+    .match-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 3px;
     }
-    .team-circle.b { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
-    .team-name { font-size: 13px; font-weight: 700; }
-    .score-mid { font-size: 15px; font-weight: 800; color: #0f172a; }
-    .score-mid span { color: #ef4444; margin: 0 4px; font-size: 12px; }
-    .odds-strip {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-      margin-top: 10px; background: #f8fafc; border: 1px solid #e2e8f0;
-      border-radius: 12px; padding: 8px;
+
+    .live-pill {
+      background: rgba(239, 68, 68, 0.16);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      border-radius: 7px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
-    .odd-box { text-align: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 4px; }
-    .odd-label { font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
-    .odd-val { font-size: 12px; color: #0f172a; font-weight: 800; margin-top: 2px; }
-    .pill-row { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; align-items: center; }
-    .mini-pill {
-      flex: 1; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0;
-      border-radius: 999px; padding: 6px 8px; font-size: 12px; font-weight: 700;
+
+    .live-pill.upcoming {
+      background: rgba(59, 130, 246, 0.16);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.45);
     }
-    .venue-line {
-      text-align: center; font-size: 12px; font-weight: 600; color: #334155;
-      margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9;
+
+    .score-stage {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 14px 0 12px;
+      gap: 6px;
     }
-    .open-cta {
-      margin-top: 10px; width: 100%; background: #0f172a; color: #34d399;
-      border: none; border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 800; cursor: pointer;
+
+    .team-col {
+      width: 68px;
+      text-align: center;
     }
-    .dots { display: flex; justify-content: center; gap: 6px; margin: 10px 0 14px; }
-    .dot { width: 8px; height: 8px; border-radius: 999px; background: #cbd5e1; cursor: pointer; transition: all 0.2s; }
-    .dot.active { width: 22px; background: #0f172a; }
-    .card {
-      background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 12px;
-      border: 1px solid #e2e8f0;
+
+    .team-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      margin: 0 auto 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--accent-emerald-bright);
+      border: 1.5px solid rgba(16, 185, 129, 0.5);
     }
-    .card-title {
-      font-size: 14px; font-weight: 800; margin-bottom: 10px;
-      display: flex; justify-content: space-between; align-items: center;
+
+    .team-badge.away {
+      background: rgba(245, 158, 11, 0.14);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.5);
     }
-    .prob-labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
-    .prob-bar { height: 8px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
-    .prob-fill { height: 100%; background: #22c55e; transition: width 0.3s; }
-    .strip-meta { font-size: 11px; color: #475569; margin-top: 8px; line-height: 1.45; }
-    .ask-row { display: flex; gap: 8px; margin-top: 8px; }
+
+    .team-code {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .score-center {
+      flex: 1;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .score-center span {
+      color: var(--accent-gold);
+      font-size: 11px;
+      margin: 0 4px;
+    }
+
+    .hero-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .hero-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 7px 6px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .hero-pill.locked {
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .hero-footer {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .voice-chip-btn {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald-bright);
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 10px 0 12px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #334155;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      width: 20px;
+      background: var(--accent-emerald-bright);
+    }
+
+    /* ASK AI BAR */
+    .ask-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .ask-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .free-tag {
+      background: rgba(16, 185, 129, 0.16);
+      color: var(--accent-emerald-bright);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      margin-left: 6px;
+    }
+
+    .ask-form {
+      display: flex;
+      gap: 8px;
+    }
+
     .ask-input {
-      flex: 1; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 13px;
+      flex: 1;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 9px 11px;
+      font-size: 12px;
     }
-    .ask-btn {
-      background: #0f172a; color: #fff; border: none; border-radius: 10px;
-      padding: 0 16px; font-weight: 700; cursor: pointer;
+
+    .ask-submit {
+      background: var(--accent-emerald);
+      color: #04130d;
+      border: none;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
     }
-    .ask-reply {
-      margin-top: 10px; font-size: 12px; background: #f8fafc; padding: 10px;
-      border-radius: 10px; border: 1px solid #e2e8f0; color: #1e293b; display: none;
+
+    .ask-answer {
+      display: none;
+      margin-top: 9px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: var(--bg-elevated);
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.45;
     }
-    .intel-row {
-      display: flex; justify-content: space-between; padding: 9px 0;
-      border-bottom: 1px solid #f1f5f9; font-size: 13px;
+
+    /* FREE TRIAL BANNER */
+    .trial-banner {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.16), rgba(245, 158, 11, 0.14));
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      padding: 11px 13px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
     }
-    .intel-row:last-child { border-bottom: none; }
-    .intel-label { color: #64748b; }
-    .intel-val { font-weight: 700; color: #0f172a; text-align: right; }
-    .comm-item {
-      padding: 10px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0;
-      margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+
+    .trial-sub {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent-gold);
+      font-weight: 800;
     }
-    .over-tag {
-      background: #0f172a; color: #fff; font-size: 11px; font-weight: 800;
-      padding: 3px 7px; border-radius: 6px;
+
+    .trial-title {
+      font-size: 14px;
+      font-weight: 900;
+      margin-top: 2px;
     }
-    .bol-btn {
-      background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7;
-      padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 800;
-      cursor: pointer; white-space: nowrap;
+
+    .trial-cta {
+      background: var(--text-primary);
+      color: var(--bg-page);
+      border: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 11px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
     }
-    .player-card {
-      padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;
-      margin-bottom: 8px; background: #f8fafc;
+
+    /* AI SIGNALS SECTION HEADER */
+    .signals-divider {
+      text-align: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-emerald-bright);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 9px;
+      border-radius: 12px;
+      margin-bottom: 12px;
     }
-    .modal-backdrop {
-      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65);
-      z-index: 50; padding: 14px; overflow-y: auto;
+
+    /* SIGNAL CARDS + BLUR / SUBSCRIPTION GATE */
+    .signal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
     }
-    .modal-backdrop.open { display: flex; align-items: flex-start; justify-content: center; }
-    .modal-box {
-      width: 100%; max-width: 480px; background: #fff; border-radius: 18px;
-      padding: 16px; margin-top: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+
+    .signal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
     }
-    .modal-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+
+    .signal-title {
+      font-size: 14px;
+      font-weight: 800;
     }
-    .close-btn {
-      background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1;
-      border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 800; cursor: pointer;
+
+    .signal-time {
+      font-size: 11px;
+      color: var(--text-secondary);
     }
+
+    .gated-area {
+      position: relative;
+      cursor: pointer;
+    }
+
+    body:not(.pro-unlocked) .gated-content {
+      filter: blur(6px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .lock-badge-overlay {
+      display: none;
+    }
+
+    body:not(.pro-unlocked) .lock-badge-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 11, 18, 0.28);
+      border-radius: 12px;
+    }
+
+    .lock-pill {
+      background: rgba(15, 23, 42, 0.92);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .prob-teams {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .bar-track {
+      height: 8px;
+      background: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 6px 0 10px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #fbbf24);
+    }
+
+    .over-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .over-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 9px 6px;
+      text-align: center;
+    }
+
+    .over-lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .over-pct {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--accent-emerald-bright);
+      margin-top: 3px;
+    }
+
+    .session-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .session-table th {
+      text-align: left;
+      color: var(--text-secondary);
+      font-size: 11px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .session-table td {
+      padding: 8px 2px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      font-weight: 700;
+    }
+
+    .horiz-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .horiz-scroll::-webkit-scrollbar { display: none; }
+
+    .mini-player {
+      min-width: 152px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .mini-player-name {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .mini-player-stats {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    /* MID SUBSCRIBE BANNER */
+    .sub-banner {
+      background: linear-gradient(120deg, #064e3b, #0f172a 65%, #451a03);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      border-radius: var(--radius-lg);
+      padding: 13px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .sub-banner-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: #fef08a;
+    }
+
+    .sub-banner-sub {
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    .subscribe-cta {
+      background: var(--accent-emerald);
+      color: #04130d;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 13px;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* SUBSCRIPTION & MATCH MODALS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(2, 6, 12, 0.78);
+      backdrop-filter: blur(5px);
+      padding: 14px;
+      overflow-y: auto;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .close-x {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .plan-box {
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+    }
+
+    .plan-box.popular {
+      border-color: var(--accent-gold);
+    }
+
+    .popular-tag {
+      position: absolute;
+      top: -9px;
+      right: 10px;
+      background: var(--accent-gold);
+      color: #181002;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .plan-price {
+      font-size: 22px;
+      font-weight: 900;
+      margin: 6px 0 10px;
+    }
+
+    .plan-btn {
+      width: 100%;
+      background: var(--accent-emerald);
+      color: #04130d;
+      border: none;
+      border-radius: 9px;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 10px;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .check-circle {
+      color: var(--accent-emerald-bright);
+      font-weight: 900;
+    }
+
+    /* BOTTOM NAV */
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a;
-      display: flex; justify-content: space-around; padding: 10px 0; z-index: 35;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      background: rgba(6, 11, 18, 0.95);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding: 9px 0;
     }
-    .nav-btn {
-      background: none; border: none; color: #94a3b8; font-size: 11px; font-weight: 700;
-      display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+
+    .nav-item {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
     }
-    .nav-btn.active { color: #34d399; }
-    .tab-section { display: none; }
-    .tab-section.active { display: block; }
+
+    .nav-item.active {
+      color: var(--accent-emerald-bright);
+    }
+
+    .view-pane { display: none; }
+    .view-pane.active { display: block; }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <button class="pro-btn" onclick="switchTab('profile')">Unlock AI Pro</button>
-    <div class="brand">CN</div>
-    <button class="voice-pill" onclick="speakLatest()">🔊 Bol Score</button>
+  <!-- TOP HEADER -->
+  <header class="topbar">
+    <button id="topProBtn" class="pro-pill" onclick="openSubscriptionModal()">Unlock AI Pro</button>
+    <div class="brand-logo">CN</div>
+    <div class="top-actions">
+      <button class="icon-btn" onclick="speakCurrentMatch()">🔊 Bol</button>
+      <button class="icon-btn" onclick="openSubscriptionModal()">✉️</button>
+    </div>
+  </header>
+
+  <!-- FILTER CHIPS -->
+  <div class="chips-bar">
+    <button class="chip" onclick="setMatchFilter('UPCOMING', this)">Upcoming</button>
+    <button class="chip active" onclick="setMatchFilter('LIVE', this)">🔴 Live</button>
+    <button class="chip" onclick="setMatchFilter('ALL', this)">⚡ All Matches</button>
   </div>
 
-  <div class="chips" id="filterChips">
-    <button class="chip" onclick="setFilter('UPCOMING', this)">Upcoming</button>
-    <button class="chip active" onclick="setFilter('LIVE', this)">🔴 Live</button>
-    <button class="chip" onclick="setFilter('ALL', this)">⚡ All Matches</button>
-  </div>
+  <main class="page">
+    <!-- HOME VIEW -->
+    <section id="view-home" class="view-pane active">
+      <div id="heroMatchSlot"></div>
+      <div id="heroDotsSlot" class="dots"></div>
 
-  <div class="container">
-    <!-- HOME TAB -->
-    <div id="tab-home" class="tab-section active">
-      <div id="heroContainer"></div>
-      <div class="dots" id="matchDots"></div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>✦ Ask AI <span style="background:#dcfce7;color:#166534;padding:2px 7px;border-radius:999px;font-size:11px;">3 FREE</span></span>
+      <!-- ASK AI BAR -->
+      <div class="ask-card">
+        <div class="ask-top">
+          <span>✦ Ask AI <span class="free-tag">FREE</span></span>
+          <span style="font-size:11px;color:var(--text-secondary);">Live Match Insights</span>
         </div>
-        <div class="ask-row">
-          <input id="askInput" class="ask-input" placeholder="Best C & VC picks or match odds" />
-          <button class="ask-btn" onclick="askAi()">Ask</button>
+        <div class="ask-form">
+          <input id="aiQuestionInput" class="ask-input" placeholder="Match-ups for today's match or session view" />
+          <button class="ask-submit" onclick="submitAskAi()">Ask</button>
         </div>
-        <div id="askReply" class="ask-reply"></div>
+        <div id="aiAnswerBox" class="ask-answer"></div>
       </div>
 
-      <div class="card" id="homeProbCard"></div>
-    </div>
+      <!-- FREE TRIAL STRIP -->
+      <div class="trial-banner" onclick="openSubscriptionModal()">
+        <div>
+          <div class="trial-sub">CricNawab Pro</div>
+          <div class="trial-title">Start Your AI Signals Access</div>
+        </div>
+        <button class="trial-cta" onclick="event.stopPropagation(); openSubscriptionModal()">OPEN »</button>
+      </div>
+
+      <div class="signals-divider">AI Signals</div>
+
+      <!-- 1. AI WIN PROBABILITY -->
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">✦ AI Win Probability</span>
+          <span class="signal-time">Updated just now</span>
+        </div>
+        <div class="gated-area" onclick="handleGatedClick()">
+          <div class="gated-content" id="winProbContent"></div>
+          <div class="lock-badge-overlay"><span class="lock-pill">🔒 Tap to Unlock AI Signals</span></div>
+        </div>
+      </div>
+
+      <!-- 2. AI PREDICTED SCORE -->
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">✦ AI Predicted Score</span>
+          <span class="signal-time">Live Model</span>
+        </div>
+        <div class="gated-area" onclick="handleGatedClick()">
+          <div class="gated-content" id="predScoreContent"></div>
+          <div class="lock-badge-overlay"><span class="lock-pill">🔒 Tap to Unlock Projection</span></div>
+        </div>
+      </div>
+
+      <!-- SUBSCRIBE BANNER -->
+      <div class="sub-banner" onclick="openSubscriptionModal()">
+        <div>
+          <div class="sub-banner-title">Unlock AI Signals 🔒</div>
+          <div class="sub-banner-sub">Real-time win odds, sessions & player picks.</div>
+        </div>
+        <button class="subscribe-cta" onclick="event.stopPropagation(); openSubscriptionModal()">Subscribe</button>
+      </div>
+
+      <!-- 3. AI OVER PREDICTION -->
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">✦ AI Over Prediction</span>
+          <span class="signal-time">Run Rate Model</span>
+        </div>
+        <div class="gated-area" onclick="handleGatedClick()">
+          <div class="gated-content" id="overPredContent"></div>
+          <div class="lock-badge-overlay"><span class="lock-pill">🔒 Tap to Unlock Over Odds</span></div>
+        </div>
+      </div>
+
+      <!-- 4. AI SESSION PREDICTION -->
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">✦ AI Session Prediction</span>
+          <span class="signal-time">Innings Splits</span>
+        </div>
+        <div class="gated-area" onclick="handleGatedClick()">
+          <div class="gated-content" id="sessionPredContent"></div>
+          <div class="lock-badge-overlay"><span class="lock-pill">🔒 Tap to Unlock Sessions</span></div>
+        </div>
+      </div>
+
+      <!-- 5. AI TOP BATTER & BOWLING -->
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">✦ AI Top Batter & Bowling</span>
+          <span class="signal-time">AI Confidence</span>
+        </div>
+        <div class="gated-area" onclick="handleGatedClick()">
+          <div class="gated-content" id="playersSignalContent"></div>
+          <div class="lock-badge-overlay"><span class="lock-pill">🔒 Tap to Unlock Top Picks</span></div>
+        </div>
+      </div>
+    </section>
 
     <!-- MATCH TAB -->
-    <div id="tab-match" class="tab-section">
-      <div id="matchTabContent"></div>
-    </div>
+    <section id="view-match" class="view-pane">
+      <div class="signal-card" id="matchTabDetail"></div>
+    </section>
 
     <!-- EXPERTS TAB -->
-    <div id="tab-experts" class="tab-section">
-      <div class="card" id="expertsContainer"></div>
-    </div>
+    <section id="view-experts" class="view-pane">
+      <div class="signal-card" id="expertsTabDetail"></div>
+    </section>
 
     <!-- FEED TAB -->
-    <div id="tab-feed" class="tab-section">
-      <div class="card">
-        <div class="card-title">
-          <span>🎙️ Live Voice & Commentary Feed</span>
-          <button class="bol-btn" onclick="speakLatest()">🔊 Bol Latest</button>
-        </div>
-        <div id="feedContainer"></div>
-      </div>
-    </div>
+    <section id="view-feed" class="view-pane">
+      <div class="signal-card" id="feedTabDetail"></div>
+    </section>
 
     <!-- PROFILE TAB -->
-    <div id="tab-profile" class="tab-section">
-      <div class="card">
-        <div class="card-title"><span>👑 CricNawab AI Pro Pass</span></div>
-        <p style="font-size:13px;color:#475569;margin-bottom:12px;">
-          Unlock full AI win projections, live odds/session ranges, and H2H/GL expert picks.
+    <section id="view-profile" class="view-pane">
+      <div class="signal-card">
+        <div class="signal-head">
+          <span class="signal-title">👑 CricNawab AI Membership</span>
+          <span id="proStatusBadge" class="signal-time">Locked</span>
+        </div>
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">
+          Manage your AI Signals access for live win probability, session ranges, and player analytics.
         </p>
-        <div class="intel-row"><span class="intel-label">Match Day Pass</span><span class="intel-val">₹99</span></div>
-        <div class="intel-row"><span class="intel-label">Monthly Pro Pass</span><span class="intel-val">₹249</span></div>
+        <button class="plan-btn" onclick="openSubscriptionModal()">View Subscription Plans</button>
       </div>
+    </section>
+  </main>
+
+  <!-- SUBSCRIPTION MODAL -->
+  <div id="subModal" class="modal-overlay" onclick="if(event.target === this) closeSubscriptionModal()">
+    <div class="modal-card">
+      <div class="modal-top">
+        <h3 style="font-size:17px;font-weight:900;">Subscription</h3>
+        <button class="close-x" onclick="closeSubscriptionModal()">✕</button>
+      </div>
+
+      <div class="plans-grid">
+        <div class="plan-box">
+          <div style="font-size:12px;font-weight:700;color:var(--text-secondary);">Weekly Plan</div>
+          <div class="plan-price">₹199.0</div>
+          <button class="plan-btn" onclick="activateProPlan('Weekly Plan')">Subscribe</button>
+        </div>
+        <div class="plan-box popular">
+          <span class="popular-tag">MOST POPULAR</span>
+          <div style="font-size:12px;font-weight:700;color:#fde68a;">Monthly Plan</div>
+          <div class="plan-price">₹499.0</div>
+          <button class="plan-btn" onclick="activateProPlan('Monthly Plan')">Subscribe</button>
+        </div>
+      </div>
+
+      <div style="font-size:14px;font-weight:900;margin-bottom:10px;">
+        What You Get With <span style="color:var(--accent-emerald-bright);">AI Pro</span>
+      </div>
+      <div class="benefit-item"><span>Live match AI signals to identify momentum shifts</span><span class="check-circle">✓</span></div>
+      <div class="benefit-item"><span>Build winning fantasy teams with AI insights</span><span class="check-circle">✓</span></div>
+      <div class="benefit-item"><span>Expert-backed picks for every match</span><span class="check-circle">✓</span></div>
+      <div class="benefit-item"><span>Clean, focused match analytics experience</span><span class="check-circle">✓</span></div>
     </div>
   </div>
 
-  <!-- TAP-TO-OPEN MATCH DETAIL MODAL -->
-  <div id="matchModal" class="modal-backdrop" onclick="if(event.target === this) closeMatchModal()">
-    <div class="modal-box" id="matchModalBody"></div>
+  <!-- MATCH DETAIL MODAL -->
+  <div id="matchModal" class="modal-overlay" onclick="if(event.target === this) closeMatchModal()">
+    <div class="modal-card" id="matchModalContent"></div>
   </div>
 
-  <div class="bottom-nav">
-    <button class="nav-btn active" id="nav-home" onclick="switchTab('home')"><span>🏠</span><span>HOME</span></button>
-    <button class="nav-btn" id="nav-match" onclick="switchTab('match')"><span>🏏</span><span>MATCH</span></button>
-    <button class="nav-btn" id="nav-experts" onclick="switchTab('experts')"><span>💡</span><span>EXPERTS</span></button>
-    <button class="nav-btn" id="nav-feed" onclick="switchTab('feed')"><span>📰</span><span>FEED</span></button>
-    <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')"><span>⚙️</span><span>PROFILE</span></button>
-  </div>
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="navBtn-home" onclick="switchMainView('home')"><span>🏠</span><span>HOME</span></button>
+    <button class="nav-item" id="navBtn-match" onclick="switchMainView('match')"><span>🏏</span><span>MATCH</span></button>
+    <button class="nav-item" id="navBtn-experts" onclick="switchMainView('experts')"><span>💡</span><span>EXPERTS</span></button>
+    <button class="nav-item" id="navBtn-feed" onclick="switchMainView('feed')"><span>📰</span><span>FEED</span></button>
+    <button class="nav-item" id="navBtn-profile" onclick="switchMainView('profile')"><span>⚙️</span><span>PROFILE</span></button>
+  </nav>
 
   <script>
-    let allMatches = [];
-    let filteredMatches = [];
-    let activeIndex = 0;
-    let currentFilter = 'LIVE';
-
-    function calcDecimalOdds(prob) {
-      const p = Math.max(8, Math.min(92, Number(prob) || 50));
-      return (100 / p).toFixed(2);
-    }
-
-    function enrichMatch(raw) {
-      const m = Object.assign({}, raw);
-      m.teamA = m.teamA || 'TEAM A';
-      m.teamB = m.teamB || 'TEAM B';
-      m.runsA = m.runsA ?? 0;
-      m.wicketsA = m.wicketsA ?? 0;
-      m.oversA = m.oversA ?? '0.0';
-      m.runsB = m.runsB ?? 0;
-      m.wicketsB = m.wicketsB ?? 0;
-      m.oversB = m.oversB ?? '0.0';
-      m.ai = Object.assign({
-        probA: 52,
-        probB: 48,
-        crowdA: 54,
-        projRange: '15Ov: ~128 | 20Ov: ~172',
-        sessionRange: '6Ov: 44-51 | 10Ov: 76-88',
-        momentum: 'Live / Competitive'
-      }, m.ai || {});
-
-      const oddA = m.odds?.teamA || calcDecimalOdds(m.ai.probA);
-      const oddB = m.odds?.teamB || calcDecimalOdds(m.ai.probB);
-      const favTeam = Number(m.ai.probA) >= Number(m.ai.probB) ? m.teamA : m.teamB;
-      const favOdd = Number(m.ai.probA) >= Number(m.ai.probB) ? oddA : oddB;
-
-      m.computedOdds = {
-        oddA,
-        oddB,
-        favLabel: `${favTeam} @ ${favOdd}`,
-        pairLabel: `${m.teamA} ${oddA} • ${m.teamB} ${oddB}`,
-        sessionLabel: m.odds?.session || m.ai.sessionRange
-      };
-
-      if (!Array.isArray(m.commentary) || m.commentary.length === 0) {
-        m.commentary = [
-          {
-            over: String(m.oversA || 'LIVE'),
-            text: `${m.teamA} ${m.runsA}/${m.wicketsA} (${m.oversA}) vs ${m.teamB} ${m.runsB}/${m.wicketsB} (${m.oversB}). Odds: ${m.computedOdds.pairLabel}.`
-          }
-        ];
-      }
-      return m;
-    }
-
-    function speakText(text) {
-      if (!('speechSynthesis' in window)) {
-        alert('Voice speech is not supported in this browser.');
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'en-IN';
-      utter.rate = 0.98;
-      window.speechSynthesis.speak(utter);
-    }
+    let matchesPool = [];
+    let visibleMatches = [];
+    let selectedMatchIdx = 0;
+    let activeFilterMode = 'LIVE';
+    let isProUnlocked = false;
 
     function getActiveMatch() {
-      return filteredMatches[activeIndex] || allMatches[0] || null;
+      return visibleMatches[selectedMatchIdx] || matchesPool[0] || null;
     }
 
-    function speakLatest() {
+    function speakText(msg) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(msg);
+      u.lang = 'en-IN';
+      u.rate = 0.98;
+      window.speechSynthesis.speak(u);
+    }
+
+    function speakCurrentMatch() {
       const m = getActiveMatch();
       if (!m) return;
-      const latest = m.commentary?.[0]?.text || '';
-      const spoken = `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB} ${m.runsB} for ${m.wicketsB}. Odds ${m.teamA} ${m.computedOdds.oddA}, ${m.teamB} ${m.computedOdds.oddB}. ${latest}`;
-      speakText(spoken);
+      speakText(
+        `${m.teamA} ${m.runsA} for ${m.wicketsA} in ${m.oversA} overs against ${m.teamB} ${m.runsB} for ${m.wicketsB}. ` +
+        `Win probability ${m.teamA} ${m.ai?.probA || 52} percent, ${m.teamB} ${m.ai?.probB || 48} percent.`
+      );
+    }
+
+    function openSubscriptionModal() {
+      document.getElementById('subModal').classList.add('open');
+    }
+
+    function closeSubscriptionModal() {
+      document.getElementById('subModal').classList.remove('open');
+    }
+
+    function activateProPlan(planName) {
+      isProUnlocked = true;
+      document.body.classList.add('pro-unlocked');
+      document.getElementById('topProBtn').textContent = 'AI Pro Active';
+      document.getElementById('topProBtn').classList.add('unlocked');
+      document.getElementById('proStatusBadge').textContent = `Active (${planName})`;
+      closeSubscriptionModal();
+      renderHome();
+    }
+
+    function handleGatedClick() {
+      if (!isProUnlocked) {
+        openSubscriptionModal();
+      }
     }
 
     function openMatchModal() {
-      renderAll();
+      renderHome();
       document.getElementById('matchModal').classList.add('open');
     }
 
@@ -326,223 +1013,256 @@
       document.getElementById('matchModal').classList.remove('open');
     }
 
-    function switchTab(tabName) {
+    function switchMainView(viewName) {
       closeMatchModal();
-      document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      const target = document.getElementById('tab-' + tabName);
-      const nav = document.getElementById('nav-' + tabName);
-      if (target) target.classList.add('active');
+      document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const pane = document.getElementById('view-' + viewName);
+      const nav = document.getElementById('navBtn-' + viewName);
+      if (pane) pane.classList.add('active');
       if (nav) nav.classList.add('active');
     }
 
-    function setFilter(type, btn) {
-      currentFilter = type;
+    function setMatchFilter(mode, btnEl) {
+      activeFilterMode = mode;
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      applyFilter();
+      if (btnEl) btnEl.classList.add('active');
+      applyMatchFilter();
     }
 
-    function applyFilter() {
-      if (currentFilter === 'LIVE') {
-        const liveOnly = allMatches.filter(m => m.status === 'LIVE');
-        filteredMatches = liveOnly.length ? liveOnly : allMatches;
-      } else if (currentFilter === 'UPCOMING') {
-        const upOnly = allMatches.filter(m => m.status === 'UPCOMING');
-        filteredMatches = upOnly.length ? upOnly : allMatches;
+    function applyMatchFilter() {
+      if (activeFilterMode === 'LIVE') {
+        const liveList = matchesPool.filter(m => m.status === 'LIVE');
+        visibleMatches = liveList.length ? liveList : matchesPool;
+      } else if (activeFilterMode === 'UPCOMING') {
+        const upList = matchesPool.filter(m => m.status === 'UPCOMING');
+        visibleMatches = upList.length ? upList : matchesPool;
       } else {
-        filteredMatches = allMatches;
+        visibleMatches = matchesPool;
       }
-      if (activeIndex >= filteredMatches.length) activeIndex = 0;
-      renderAll();
+      if (selectedMatchIdx >= visibleMatches.length) selectedMatchIdx = 0;
+      renderHome();
     }
 
-    function selectMatch(idx) {
-      activeIndex = idx;
-      renderAll();
+    function pickMatchDot(i) {
+      selectedMatchIdx = i;
+      renderHome();
     }
 
-    function buildMatchDetailHtml(m, showCloseBtn) {
-      const commHtml = (m.commentary || []).map(c => `
-        <div class="comm-item">
-          <div><span class="over-tag">${c.over}</span> <span style="font-size:13px;margin-left:6px;">${c.text}</span></div>
-          <button class="bol-btn" onclick="speakText('${String(c.text).replace(/'/g, '')}')">🔊 Bol</button>
-        </div>
-      `).join('');
-
-      return `
-        <div class="modal-head">
-          <div>
-            <div style="font-size:14px;font-weight:800;">${m.teamA} vs ${m.teamB} • ${m.status}</div>
-            <div style="font-size:11px;color:#64748b;">${m.series} • ${m.timeLabel || 'Live Feed'}</div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <button class="bol-btn" onclick="speakLatest()">🔊 Bol</button>
-            ${showCloseBtn ? '<button class="close-btn" onclick="closeMatchModal()">✕ Close</button>' : ''}
-          </div>
-        </div>
-
-        <div class="score-row" style="margin:10px 0 12px;">
-          <div class="team-box">
-            <div class="team-circle">${m.teamA}</div>
-            <div class="team-name">${m.teamA}</div>
-          </div>
-          <div class="score-mid">
-            ${m.runsA}/${m.wicketsA}(${m.oversA}) <span>VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})
-          </div>
-          <div class="team-box">
-            <div class="team-circle b">${m.teamB}</div>
-            <div class="team-name">${m.teamB}</div>
-          </div>
-        </div>
-
-        <div class="odds-strip" style="margin-bottom:10px;">
-          <div class="odd-box">
-            <div class="odd-label">${m.teamA} Odds</div>
-            <div class="odd-val">${m.computedOdds.oddA}x (${m.ai.probA}%)</div>
-          </div>
-          <div class="odd-box">
-            <div class="odd-label">${m.teamB} Odds</div>
-            <div class="odd-val">${m.computedOdds.oddB}x (${m.ai.probB}%)</div>
-          </div>
-          <div class="odd-box">
-            <div class="odd-label">Fav Rate</div>
-            <div class="odd-val">${m.computedOdds.favLabel}</div>
-          </div>
-        </div>
-
-        <div class="intel-row"><span class="intel-label">Match Odds</span><span class="intel-val">${m.computedOdds.pairLabel}</span></div>
-        <div class="intel-row"><span class="intel-label">Session Range</span><span class="intel-val">${m.computedOdds.sessionLabel}</span></div>
-        <div class="intel-row"><span class="intel-label">Projected Score</span><span class="intel-val">${m.ai.projRange}</span></div>
-        <div class="intel-row"><span class="intel-label">Momentum</span><span class="intel-val">${m.ai.momentum}</span></div>
-        <div class="intel-row"><span class="intel-label">Venue</span><span class="intel-val">${m.venue || 'International Venue'}</span></div>
-
-        <div style="margin-top:12px;">
-          <div style="font-size:13px;font-weight:800;margin-bottom:8px;">🎙️ Live Updates & Odds Feed</div>
-          ${commHtml}
-        </div>
-      `;
-    }
-
-    function renderAll() {
+    function renderHome() {
       const m = getActiveMatch();
       if (!m) return;
-      const isUp = m.status === 'UPCOMING';
 
-      document.getElementById('heroContainer').innerHTML = `
+      const probA = Number(m.ai?.probA ?? 52);
+      const probB = Number(m.ai?.probB ?? 48);
+      const crowdA = Number(m.ai?.crowdA ?? 51);
+      const isUpcoming = m.status === 'UPCOMING';
+
+      document.getElementById('heroMatchSlot').innerHTML = `
         <div class="hero-card" onclick="openMatchModal()">
           <div class="hero-top">
-            <div class="series-title">${m.series} • ${m.teamA} vs ${m.teamB}</div>
-            <div class="live-badge ${isUp ? 'upcoming' : ''}">${m.status}</div>
-          </div>
-          <div class="sub-source">${m.timeLabel || 'Live Cricket Feed'}</div>
-          <div class="score-row">
-            <div class="team-box">
-              <div class="team-circle">${m.teamA}</div>
-              <div class="team-name">${m.teamA}</div>
+            <div>
+              <div class="series-label">${m.series} • ${m.teamA} vs ${m.teamB}</div>
+              <div class="match-meta">${m.timeLabel || m.venue || 'Live Cricket Feed'}</div>
             </div>
-            <div class="score-mid">
+            <span class="live-pill ${isUpcoming ? 'upcoming' : ''}">${m.status}</span>
+          </div>
+
+          <div class="score-stage">
+            <div class="team-col">
+              <div class="team-badge">${m.teamA}</div>
+              <div class="team-code">${m.teamA}</div>
+            </div>
+            <div class="score-center">
               ${m.runsA}/${m.wicketsA}(${m.oversA}) <span>VS</span> ${m.runsB}/${m.wicketsB}(${m.oversB})
+              <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-top:3px;">
+                ${m.ai?.momentum || 'Live Analytics'}
+              </div>
             </div>
-            <div class="team-box">
-              <div class="team-circle b">${m.teamB}</div>
-              <div class="team-name">${m.teamB}</div>
-            </div>
-          </div>
-
-          <div class="odds-strip">
-            <div class="odd-box">
-              <div class="odd-label">${m.teamA} Win</div>
-              <div class="odd-val">${m.ai.probA}% (${m.computedOdds.oddA}x)</div>
-            </div>
-            <div class="odd-box">
-              <div class="odd-label">${m.teamB} Win</div>
-              <div class="odd-val">${m.ai.probB}% (${m.computedOdds.oddB}x)</div>
-            </div>
-            <div class="odd-box">
-              <div class="odd-label">Session</div>
-              <div class="odd-val">${String(m.computedOdds.sessionLabel).split('|')[0].trim()}</div>
+            <div class="team-col">
+              <div class="team-badge away">${m.teamB}</div>
+              <div class="team-code">${m.teamB}</div>
             </div>
           </div>
 
-          <div class="pill-row">
-            <div class="mini-pill">Fav: ${m.computedOdds.favLabel}</div>
-            <div class="mini-pill">Fan ${m.ai.crowdA}%</div>
-            <button class="bol-btn" onclick="event.stopPropagation(); speakLatest()">🔊 Bol</button>
+          <div class="hero-pills">
+            <div class="hero-pill ${isProUnlocked ? '' : 'locked'}" onclick="event.stopPropagation(); handleGatedClick()">
+              ✦ AI ${isProUnlocked ? probA + '%' : '🔒'}
+            </div>
+            <div class="hero-pill">Fan ${crowdA}%</div>
+            <div class="hero-pill ${isProUnlocked ? '' : 'locked'}" onclick="event.stopPropagation(); handleGatedClick()">
+              ✎ Expert ${isProUnlocked ? (m.odds?.teamA || '1.90x') : '🔒'}
+            </div>
           </div>
-          <div class="venue-line">${m.venue || 'International Venue'} • ${m.ai.momentum}</div>
-          <button class="open-cta" onclick="event.stopPropagation(); openMatchModal()">🏏 Open Full Scorecard, Odds & Voice</button>
+
+          <div class="hero-footer">
+            <span>${m.venue || 'International Venue'}</span>
+            <button class="voice-chip-btn" onclick="event.stopPropagation(); speakCurrentMatch()">🔊 Bol</button>
+          </div>
         </div>
       `;
 
-      document.getElementById('matchDots').innerHTML = filteredMatches
-        .map((_, i) => `<div class="dot ${i === activeIndex ? 'active' : ''}" onclick="selectMatch(${i})"></div>`)
+      document.getElementById('heroDotsSlot').innerHTML = visibleMatches
+        .map((_, idx) => `<div class="dot ${idx === selectedMatchIdx ? 'active' : ''}" onclick="pickMatchDot(${idx})"></div>`)
         .join('');
 
-      document.getElementById('homeProbCard').innerHTML = `
-        <div class="card-title"><span>✦ Live Odds & Win Probability</span><span style="font-size:11px;color:#64748b;">${m.computedOdds.pairLabel}</span></div>
-        <div class="prob-labels"><span>${m.teamA} ${m.ai.probA}% (${m.computedOdds.oddA}x)</span><span>${m.teamB} ${m.ai.probB}% (${m.computedOdds.oddB}x)</span></div>
-        <div class="prob-bar"><div class="prob-fill" style="width:${m.ai.probA}%"></div></div>
-        <div class="strip-meta">${m.ai.projRange} • Session: ${m.computedOdds.sessionLabel}</div>
-      `;
-
-      document.getElementById('matchTabContent').innerHTML = `
-        <div class="card">${buildMatchDetailHtml(m, false)}</div>
-      `;
-
-      document.getElementById('matchModalBody').innerHTML = buildMatchDetailHtml(m, true);
-
-      const commHtml = (m.commentary || []).map(c => `
-        <div class="comm-item">
-          <div><span class="over-tag">${c.over}</span> <span style="font-size:13px;margin-left:6px;">${c.text}</span></div>
-          <button class="bol-btn" onclick="speakText('${String(c.text).replace(/'/g, '')}')">🔊 Bol</button>
+      document.getElementById('winProbContent').innerHTML = `
+        <div class="prob-teams"><span>${m.teamA} ${probA}%</span><span>VS</span><span>${m.teamB} ${probB}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${probA}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);">
+          <span>Rate: ${m.teamA} ${m.odds?.teamA || '1.92'} • ${m.teamB} ${m.odds?.teamB || '2.08'}</span>
+          <span>edge vs book</span>
         </div>
-      `).join('');
+      `;
 
-      document.getElementById('feedContainer').innerHTML = commHtml;
+      const targetScore = Math.max(120, Number(m.runsA || 0) + 42);
+      document.getElementById('predScoreContent').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:20px;font-weight:900;color:var(--accent-emerald-bright);">${probA}%</div>
+            <div style="font-size:11px;color:var(--text-secondary);">${m.ai?.projRange || '15Ov: ~132 | 20Ov: ~176'}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--text-secondary);">Most likely:</div>
+            <div style="font-size:14px;font-weight:800;color:var(--accent-gold);">${targetScore}.0 runs</div>
+          </div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:68%"></div></div>
+      `;
 
-      document.getElementById('expertsContainer').innerHTML = `
-        <div class="card-title"><span>💡 H2H & GL Picks (${m.teamA} vs ${m.teamB})</span></div>
-        ${(m.h2hPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
-        ${(m.glPlayers || []).map(p => `<div class="player-card"><strong>${p.name}</strong> (${p.role} • ${p.tag})<div style="font-size:12px;color:#475569;margin-top:4px;">${p.reason}</div></div>`).join('')}
+      document.getElementById('overPredContent').innerHTML = `
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">
+          Over projection • <strong style="color:var(--text-primary);">${m.teamA}</strong>
+        </div>
+        <div class="over-grid">
+          <div class="over-box"><div class="over-lbl">Over 7.5</div><div class="over-pct">${Math.min(94, probA + 12)}%</div></div>
+          <div class="over-box"><div class="over-lbl">Over 8.5</div><div class="over-pct">${probA}%</div></div>
+          <div class="over-box"><div class="over-lbl">Over 9.5</div><div class="over-pct">${Math.max(18, probA - 11)}%</div></div>
+        </div>
+      `;
+
+      document.getElementById('sessionPredContent').innerHTML = `
+        <div style="font-size:11px;font-weight:800;color:var(--accent-emerald-bright);margin-bottom:6px;">${m.teamA} Innings Sessions</div>
+        <table class="session-table">
+          <thead>
+            <tr><th>Sessions</th><th>Market Score</th><th>Probability</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>6 Overs</td><td>46 - 52</td><td>74%</td></tr>
+            <tr><td>10 Overs</td><td>78 - 88</td><td>68%</td></tr>
+            <tr><td>15 Overs</td><td>122 - 136</td><td>63%</td></tr>
+            <tr><td>20 Overs</td><td>166 - 184</td><td>59%</td></tr>
+          </tbody>
+        </table>
+      `;
+
+      const batters = m.h2hPlayers || [];
+      const bowlers = m.glPlayers || [];
+      document.getElementById('playersSignalContent').innerHTML = `
+        <div style="font-size:12px;font-weight:800;margin-bottom:6px;">🏏 AI Top Batter</div>
+        <div class="horiz-scroll" style="margin-bottom:10px;">
+          ${batters.map(p => `
+            <div class="mini-player">
+              <div class="mini-player-name">${p.name}</div>
+              <div class="mini-player-stats">${p.role} • ${p.tag}</div>
+              <div style="font-size:11px;color:var(--accent-emerald-bright);font-weight:800;">✦ AI Confidence High</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="font-size:12px;font-weight:800;margin-bottom:6px;">🎯 AI Top Bowling</div>
+        <div class="horiz-scroll">
+          ${bowlers.map(p => `
+            <div class="mini-player">
+              <div class="mini-player-name">${p.name}</div>
+              <div class="mini-player-stats">${p.role} • ${p.tag}</div>
+              <div style="font-size:11px;color:var(--accent-gold);font-weight:800;">✦ AI Confidence High</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      const detailMarkup = `
+        <div class="modal-top">
+          <div>
+            <div style="font-size:15px;font-weight:900;">${m.teamA} vs ${m.teamB}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">${m.series} • ${m.status}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="voice-chip-btn" onclick="speakCurrentMatch()">🔊 Bol</button>
+            <button class="close-x" onclick="closeMatchModal()">✕</button>
+          </div>
+        </div>
+        <div style="font-size:16px;font-weight:900;text-align:center;margin:10px 0;">
+          ${m.teamA} ${m.runsA}/${m.wicketsA} (${m.oversA}) vs ${m.teamB} ${m.runsB}/${m.wicketsB} (${m.oversB})
+        </div>
+        <div style="font-size:12px;color:var(--text-secondary);text-align:center;">
+          ${m.venue || ''} • ${m.ai?.momentum || ''}
+        </div>
+      `;
+
+      document.getElementById('matchModalContent').innerHTML = detailMarkup;
+      document.getElementById('matchTabDetail').innerHTML = detailMarkup;
+
+      document.getElementById('expertsTabDetail').innerHTML = `
+        <div class="signal-title" style="margin-bottom:10px;">💡 Expert Picks (${m.teamA} vs ${m.teamB})</div>
+        ${[...batters, ...bowlers].map(p => `
+          <div style="padding:10px;border-radius:10px;background:var(--bg-elevated);margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:800;">${p.name} <span style="color:var(--accent-gold);">(${p.tag})</span></div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;">${p.reason}</div>
+          </div>
+        `).join('')}
+      `;
+
+      const commList = m.commentary || [];
+      document.getElementById('feedTabDetail').innerHTML = `
+        <div class="signal-head">
+          <span class="signal-title">🎙️ Live Feed</span>
+          <button class="voice-chip-btn" onclick="speakCurrentMatch()">🔊 Bol Score</button>
+        </div>
+        ${commList.map(item => `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px;background:var(--bg-elevated);border-radius:10px;margin-bottom:8px;">
+            <div style="font-size:12px;"><strong>[${item.over}]</strong> ${item.text}</div>
+            <button class="voice-chip-btn" onclick="speakText('${String(item.text).replace(/'/g, '')}')">🔊</button>
+          </div>
+        `).join('')}
       `;
     }
 
-    async function askAi() {
+    async function submitAskAi() {
       const m = getActiveMatch();
-      const input = document.getElementById('askInput');
-      const replyBox = document.getElementById('askReply');
+      const input = document.getElementById('aiQuestionInput');
+      const box = document.getElementById('aiAnswerBox');
       if (!m) return;
-      replyBox.style.display = 'block';
-      replyBox.textContent = 'Analyzing live match score & odds...';
+      box.style.display = 'block';
+      box.textContent = 'Analyzing live match...';
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ matchId: m.id, question: input.value || 'Best C & VC picks and match odds' })
+          body: JSON.stringify({ matchId: m.id, question: input.value || 'match-ups for today match' })
         });
         const data = await res.json();
-        replyBox.textContent = data.reply;
-      } catch (e) {
-        replyBox.textContent = 'Unable to fetch AI reply right now.';
+        box.textContent = data.reply;
+      } catch (err) {
+        box.textContent = 'Unable to fetch AI response right now.';
       }
     }
 
-    async function loadMatches() {
+    async function syncMatches() {
       try {
         const res = await fetch('/api/matches');
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          allMatches = data.map(enrichMatch);
-          applyFilter();
+        const list = await res.json();
+        if (Array.isArray(list) && list.length > 0) {
+          matchesPool = list;
+          applyMatchFilter();
         }
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    loadMatches();
-    setInterval(loadMatches, 30000);
+    syncMatches();
+    setInterval(syncMatches, 30000);
   </script>
 </body>
 </html>
