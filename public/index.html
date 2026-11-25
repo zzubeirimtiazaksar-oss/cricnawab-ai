@@ -58,7 +58,6 @@
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
-      letter-spacing: 0.2px;
     }
 
     .pro-pill.unlocked {
@@ -109,7 +108,7 @@
       color: var(--text-secondary);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
-      padding: 6px 13px;
+      padding: 7px 14px;
       font-size: 12px;
       font-weight: 700;
       white-space: nowrap;
@@ -128,7 +127,13 @@
       padding: 12px 14px;
     }
 
-    /* HERO MATCH CARD */
+    /* SWIPE WRAPPER & HERO MATCH CARD */
+    .swipe-stage {
+      touch-action: pan-y;
+      user-select: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
     .hero-card {
       background: linear-gradient(160deg, #111d2e 0%, #0b1320 100%);
       border: 1px solid rgba(239, 68, 68, 0.45);
@@ -173,6 +178,12 @@
       background: rgba(59, 130, 246, 0.16);
       color: #93c5fd;
       border-color: rgba(59, 130, 246, 0.45);
+    }
+
+    .live-pill.recent {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.45);
     }
 
     .score-stage {
@@ -273,11 +284,19 @@
       cursor: pointer;
     }
 
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+
     .dots {
       display: flex;
+      align-items: center;
       justify-content: center;
       gap: 6px;
-      margin: 10px 0 12px;
     }
 
     .dot {
@@ -286,11 +305,18 @@
       border-radius: 999px;
       background: #334155;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .dot.active {
       width: 20px;
       background: var(--accent-emerald-bright);
+    }
+
+    .slide-hint {
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-weight: 700;
     }
 
     /* ASK AI BAR */
@@ -770,16 +796,23 @@
 
   <!-- FILTER CHIPS -->
   <div class="chips-bar">
-    <button class="chip" onclick="setMatchFilter('UPCOMING', this)">Upcoming</button>
-    <button class="chip active" onclick="setMatchFilter('LIVE', this)">🔴 Live</button>
-    <button class="chip" onclick="setMatchFilter('ALL', this)">⚡ All Matches</button>
+    <button class="chip active" onclick="setMatchFilter('LIVE', this)">🔴 Live Matches</button>
+    <button class="chip" onclick="setMatchFilter('UPCOMING', this)">Upcoming Matches</button>
+    <button class="chip" onclick="setMatchFilter('RECENT', this)">Recent Matches</button>
   </div>
 
   <main class="page">
     <!-- HOME VIEW -->
     <section id="view-home" class="view-pane active">
-      <div id="heroMatchSlot"></div>
-      <div id="heroDotsSlot" class="dots"></div>
+      <div id="swipeStage" class="swipe-stage">
+        <div id="heroMatchSlot"></div>
+      </div>
+
+      <div class="carousel-controls">
+        <span class="slide-hint">← Slide →</span>
+        <div id="heroDotsSlot" class="dots" style="margin:0;"></div>
+        <span id="matchCounterLabel" class="slide-hint">1 / 1</span>
+      </div>
 
       <!-- ASK AI BAR -->
       <div class="ask-card">
@@ -957,6 +990,14 @@
     let selectedMatchIdx = 0;
     let activeFilterMode = 'LIVE';
     let isProUnlocked = false;
+    let didSwipeRecently = false;
+
+    function normalizeStatus(m) {
+      const s = String(m?.status || '').toUpperCase();
+      if (s === 'UPCOMING') return 'UPCOMING';
+      if (s === 'RECENT' || s === 'RESULT' || s === 'COMPLETED' || s === 'FINISHED') return 'RECENT';
+      return 'LIVE';
+    }
 
     function getActiveMatch() {
       return visibleMatches[selectedMatchIdx] || matchesPool[0] || null;
@@ -1005,6 +1046,7 @@
     }
 
     function openMatchModal() {
+      if (didSwipeRecently) return;
       renderHome();
       document.getElementById('matchModal').classList.add('open');
     }
@@ -1025,6 +1067,7 @@
 
     function setMatchFilter(mode, btnEl) {
       activeFilterMode = mode;
+      selectedMatchIdx = 0;
       document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
       applyMatchFilter();
@@ -1032,11 +1075,14 @@
 
     function applyMatchFilter() {
       if (activeFilterMode === 'LIVE') {
-        const liveList = matchesPool.filter(m => m.status === 'LIVE');
+        const liveList = matchesPool.filter(m => normalizeStatus(m) === 'LIVE');
         visibleMatches = liveList.length ? liveList : matchesPool;
       } else if (activeFilterMode === 'UPCOMING') {
-        const upList = matchesPool.filter(m => m.status === 'UPCOMING');
+        const upList = matchesPool.filter(m => normalizeStatus(m) === 'UPCOMING');
         visibleMatches = upList.length ? upList : matchesPool;
+      } else if (activeFilterMode === 'RECENT') {
+        const recList = matchesPool.filter(m => normalizeStatus(m) === 'RECENT');
+        visibleMatches = recList.length ? recList : matchesPool;
       } else {
         visibleMatches = matchesPool;
       }
@@ -1044,9 +1090,66 @@
       renderHome();
     }
 
+    function stepMatch(delta) {
+      if (!visibleMatches.length) return;
+      selectedMatchIdx = (selectedMatchIdx + delta + visibleMatches.length) % visibleMatches.length;
+      const stage = document.getElementById('swipeStage');
+      if (stage) {
+        stage.style.transform = `translateX(${delta > 0 ? '-14px' : '14px'})`;
+        stage.style.opacity = '0.65';
+        setTimeout(() => {
+          renderHome();
+          stage.style.transform = 'translateX(0)';
+          stage.style.opacity = '1';
+        }, 110);
+      } else {
+        renderHome();
+      }
+    }
+
     function pickMatchDot(i) {
       selectedMatchIdx = i;
       renderHome();
+    }
+
+    function setupSwipeGesture() {
+      const stage = document.getElementById('swipeStage');
+      if (!stage) return;
+      let startX = 0;
+      let startY = 0;
+      let tracking = false;
+
+      stage.addEventListener('touchstart', (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        tracking = true;
+      }, { passive: true });
+
+      stage.addEventListener('touchmove', (e) => {
+        if (!tracking || !e.touches || e.touches.length !== 1) return;
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 12) {
+          const clamped = Math.max(-48, Math.min(48, dx * 0.45));
+          stage.style.transform = `translateX(${clamped}px)`;
+        }
+      }, { passive: true });
+
+      stage.addEventListener('touchend', (e) => {
+        if (!tracking) return;
+        tracking = false;
+        const endX = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : startX;
+        const dx = endX - startX;
+        stage.style.transform = 'translateX(0)';
+
+        if (Math.abs(dx) > 45) {
+          didSwipeRecently = true;
+          setTimeout(() => { didSwipeRecently = false; }, 220);
+          if (dx < 0) stepMatch(1);
+          else stepMatch(-1);
+        }
+      }, { passive: true });
     }
 
     function renderHome() {
@@ -1056,7 +1159,8 @@
       const probA = Number(m.ai?.probA ?? 52);
       const probB = Number(m.ai?.probB ?? 48);
       const crowdA = Number(m.ai?.crowdA ?? 51);
-      const isUpcoming = m.status === 'UPCOMING';
+      const st = normalizeStatus(m);
+      const badgeClass = st === 'UPCOMING' ? 'upcoming' : st === 'RECENT' ? 'recent' : '';
 
       document.getElementById('heroMatchSlot').innerHTML = `
         <div class="hero-card" onclick="openMatchModal()">
@@ -1065,7 +1169,7 @@
               <div class="series-label">${m.series} • ${m.teamA} vs ${m.teamB}</div>
               <div class="match-meta">${m.timeLabel || m.venue || 'Live Cricket Feed'}</div>
             </div>
-            <span class="live-pill ${isUpcoming ? 'upcoming' : ''}">${m.status}</span>
+            <span class="live-pill ${badgeClass}">${st}</span>
           </div>
 
           <div class="score-stage">
@@ -1105,6 +1209,8 @@
       document.getElementById('heroDotsSlot').innerHTML = visibleMatches
         .map((_, idx) => `<div class="dot ${idx === selectedMatchIdx ? 'active' : ''}" onclick="pickMatchDot(${idx})"></div>`)
         .join('');
+
+      document.getElementById('matchCounterLabel').textContent = `${selectedMatchIdx + 1} / ${visibleMatches.length || 1}`;
 
       document.getElementById('winProbContent').innerHTML = `
         <div class="prob-teams"><span>${m.teamA} ${probA}%</span><span>VS</span><span>${m.teamB} ${probB}%</span></div>
@@ -1185,7 +1291,7 @@
         <div class="modal-top">
           <div>
             <div style="font-size:15px;font-weight:900;">${m.teamA} vs ${m.teamB}</div>
-            <div style="font-size:11px;color:var(--text-secondary);">${m.series} • ${m.status}</div>
+            <div style="font-size:11px;color:var(--text-secondary);">${m.series} • ${st}</div>
           </div>
           <div style="display:flex;gap:6px;">
             <button class="voice-chip-btn" onclick="speakCurrentMatch()">🔊 Bol</button>
@@ -1261,6 +1367,7 @@
       }
     }
 
+    setupSwipeGesture();
     syncMatches();
     setInterval(syncMatches, 30000);
   </script>
